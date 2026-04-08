@@ -319,11 +319,13 @@
         <span class="nav-logo-name">FN<em>EWS</em>TEER</span>
       </a>
       <div class="nav-links">
-        <a href="/fns-fe/">HOME</a>
+        <a href="/">HOME</a>
         <a href="." class="active">API DOCS</a>
         <a href="../mcp/">MCP</a>
         <a href="../event-taxonomy/">TAXONOMY</a>
-        <a href="h" target="_blank">GITHUB</a>
+        <a href="https://github.com/tushcmd/fnewsteer" target="_blank"
+          >GITHUB</a
+        >
       </div>
       <a
         href="https://chromewebstore.google.com/detail/nfdcdhkgoiohipbhoalpnenhincbpnlc"
@@ -518,6 +520,21 @@ API_KEY = <span class="str">"your-api-key"</span>
 
         <!-- ENDPOINTS -->
         <h2 style="margin-top: 0">Endpoints</h2>
+        <div class="callout callout-warn" style="margin-bottom: 20px">
+          <span class="callout-icon">⚠</span
+          ><strong>Try It — cold start & CORS:</strong> The API runs on Render's
+          free tier and sleeps after inactivity. First request may take 30–60s.
+          If you get a network error, open
+          <a
+            href="https://fnewsteer-api.onrender.com/health"
+            target="_blank"
+            style="color: var(--accent)"
+            >the health endpoint ↗</a
+          >
+          in a new tab to wake the server, then retry. Some browser security
+          policies (CORS) may block requests from this page — use
+          <code>curl</code> from your terminal if issues persist.
+        </div>
 
         <span class="anchor" id="ep-health"></span>
         <div class="endpoint-card" id="card-health">
@@ -896,68 +913,122 @@ API_KEY = <span class="str">"your-api-key"</span>
             card.classList.add('open');
         }
       }
-      function showResult(id, ok, data) {
+
+      function showResult(id, ok, data, note) {
         const el = document.getElementById('res-' + id);
         el.style.display = 'block';
-        el.innerHTML = `<div class="result-status ${ok ? 'result-ok' : 'result-err'}">${ok ? '200 OK' : 'Error'}</div><pre class="result-pre">${JSON.stringify(data, null, 2)}</pre>`;
+        const noteHtml = note
+          ? `<div style="font-size:9px;color:var(--dim);margin-bottom:8px;letter-spacing:0.06em;line-height:1.6">${note}</div>`
+          : '';
+        el.innerHTML = `${noteHtml}<div class="result-status ${ok ? 'result-ok' : 'result-err'}">${ok ? '200 OK' : 'Error'}</div><pre class="result-pre">${JSON.stringify(data, null, 2)}</pre>`;
       }
-      async function tryHealth() {
+
+      function showLoading(id) {
+        const el = document.getElementById('res-' + id);
+        el.style.display = 'block';
+        el.innerHTML = `<div style="font-size:10px;color:var(--dim);letter-spacing:0.1em;animation:blink 1s infinite">⟳ REQUESTING — server may take 30–60s on cold start…</div>`;
+      }
+
+      function showCorsNote(id) {
+        const el = document.getElementById('res-' + id);
+        el.style.display = 'block';
+        el.innerHTML = `
+        <div class="result-status result-err">Network Error</div>
+        <div style="font-size:10px;color:var(--dim);line-height:1.8;letter-spacing:0.03em;margin-top:8px">
+          <strong style="color:var(--danger)">The API server may be in a cold-start sleep (Render free tier).</strong><br/>
+          Try opening the endpoint directly in a new tab to wake it up, then retry here:<br/>
+          <a href="${BASE}/health" target="_blank" style="color:var(--accent);font-size:9px">${BASE}/health ↗</a><br/><br/>
+          If it still fails, use <strong>curl</strong> from your terminal — browser security restrictions
+          (CORS) can block some cross-origin requests from this page.
+        </div>
+      `;
+      }
+
+      async function apiFetch(url, opts = {}) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 70000);
         try {
-          const r = await fetch(BASE + '/health');
-          showResult('health', r.ok, await r.json());
+          const r = await fetch(url, { ...opts, signal: controller.signal });
+          clearTimeout(timeout);
+          return r;
         } catch (e) {
-          showResult('health', false, { error: e.message });
+          clearTimeout(timeout);
+          throw e;
         }
       }
+
+      async function tryHealth() {
+        showLoading('health');
+        try {
+          const r = await apiFetch(BASE + '/health');
+          showResult('health', r.ok, await r.json());
+        } catch (e) {
+          showCorsNote('health');
+        }
+      }
+
       async function tryCheck() {
         const symbol =
           document.getElementById('check-symbol').value || 'EURUSD';
         const medium = document.getElementById('check-medium').value;
+        showLoading('check');
         try {
-          const r = await fetch(
+          const r = await apiFetch(
             `${BASE}/v1/news/check?symbol=${symbol}&include_medium=${medium}`,
             { headers: { 'X-API-Key': KEY } },
           );
-          showResult('check', r.ok, await r.json());
+          showResult(
+            'check',
+            r.ok,
+            await r.json(),
+            r.ok ? null : 'Hint: hit /health first to warm up the server.',
+          );
         } catch (e) {
-          showResult('check', false, { error: e.message });
+          showCorsNote('check');
         }
       }
+
       async function tryUpcoming() {
         const cur = document.getElementById('upcoming-currency').value || 'USD';
+        showLoading('upcoming');
         try {
-          const r = await fetch(`${BASE}/v1/news/upcoming?currency=${cur}`, {
+          const r = await apiFetch(`${BASE}/v1/news/upcoming?currency=${cur}`, {
             headers: { 'X-API-Key': KEY },
           });
           showResult('upcoming', r.ok, await r.json());
         } catch (e) {
-          showResult('upcoming', false, { error: e.message });
+          showCorsNote('upcoming');
         }
       }
+
       async function tryBlackout() {
         const cur =
           document.getElementById('blackout-currency').value || 'GBPUSD';
+        showLoading('blackout');
         try {
-          const r = await fetch(
+          const r = await apiFetch(
             `${BASE}/v1/news/blackout-zones?currency=${cur}`,
             { headers: { 'X-API-Key': KEY } },
           );
           showResult('blackout', r.ok, await r.json());
         } catch (e) {
-          showResult('blackout', false, { error: e.message });
+          showCorsNote('blackout');
         }
       }
+
       async function tryRefresh() {
+        showLoading('refresh');
         try {
-          const r = await fetch(`${BASE}/admin/refresh-cache`, {
+          const r = await apiFetch(`${BASE}/admin/refresh-cache`, {
             method: 'POST',
             headers: { 'X-API-Key': KEY },
           });
           showResult('refresh', r.ok, await r.json());
         } catch (e) {
-          showResult('refresh', false, { error: e.message });
+          showCorsNote('refresh');
         }
       }
+
       function copyCode(btn) {
         const pre = btn.closest('.code-wrap').querySelector('pre');
         navigator.clipboard.writeText(pre.innerText);
