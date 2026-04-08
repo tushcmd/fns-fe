@@ -3,22 +3,85 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FNEWSTEER — News Loss Prevention</title>
+
+    <!-- ═══ SEO ═══ -->
+    <title>FNEWSTEER — Forex News Loss Prevention for TradingView</title>
+    <meta
+      name="description"
+      content="Stop getting stopped out by NFP, CPI, and FOMC. FNEWSTEER puts a live CLEAR/BLOCKED signal directly on your TradingView chart. Free Chrome extension + open API."
+    />
+    <meta
+      name="keywords"
+      content="forex news filter, tradingview extension, news blackout, NFP trading, FOMC blackout, forex loss prevention, high impact news, forex chrome extension, trading news filter"
+    />
+    <meta name="author" content="FNEWSTEER" />
+    <link rel="canonical" href="https://tushcmd.github.io/fns-fe/" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://tushcmd.github.io/fns-fe/" />
+    <meta
+      property="og:title"
+      content="FNEWSTEER — Forex News Loss Prevention"
+    />
+    <meta
+      property="og:description"
+      content="Know when to trade. Know when NOT to. Live CLEAR/BLOCKED signals on TradingView for NFP, CPI, FOMC and all high-impact events."
+    />
+    <meta
+      property="og:image"
+      content="https://tushcmd.github.io/fns-fe/og-image.png"
+    />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@0xtush" />
+    <meta name="twitter:creator" content="@0xtush" />
+    <meta
+      name="twitter:title"
+      content="FNEWSTEER — Forex News Loss Prevention"
+    />
+    <meta
+      name="twitter:description"
+      content="Stop getting stopped out by NFP, CPI, FOMC. Free Chrome extension puts a live CLEAR/BLOCKED badge directly on your TradingView chart."
+    />
+    <meta
+      name="twitter:image"
+      content="https://tushcmd.github.io/fns-fe/og-image.png"
+    />
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "FNEWSTEER",
+        "applicationCategory": "FinanceApplication",
+        "operatingSystem": "Chrome",
+        "description": "News loss prevention tool for forex traders. Puts a live CLEAR/BLOCKED signal on TradingView during high-impact economic events like NFP, CPI, and FOMC.",
+        "url": "https://tushcmd.github.io/fns-fe/",
+        "author": {
+          "@type": "Person",
+          "name": "tushcmd",
+          "url": "https://x.com/0xtush"
+        },
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      }
+    </script>
+
     <link
       href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="shared.css" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <style>
-      /* ── Hero ── */
       .hero {
         min-height: calc(100vh - var(--nav-h) - 37px);
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 60px 32px 60px;
+        padding: 60px 32px;
         position: relative;
         text-align: center;
       }
@@ -90,18 +153,28 @@
       .hero-title .block-word {
         color: var(--danger);
       }
-
       .hero-sub {
         font-size: clamp(10px, 1.4vw, 13px);
         color: var(--dim);
         letter-spacing: 0.06em;
         line-height: 1.8;
         max-width: 480px;
-        margin: 16px auto 40px;
+        margin: 16px auto 20px;
         position: relative;
       }
-
-      /* ── Live badge ── */
+      .disclaimer-strip {
+        font-size: 9px;
+        color: var(--faint);
+        letter-spacing: 0.06em;
+        border: 1px solid var(--border);
+        border-radius: 3px;
+        padding: 5px 12px;
+        background: rgba(107, 107, 122, 0.05);
+        margin-bottom: 28px;
+        position: relative;
+        max-width: 520px;
+        line-height: 1.6;
+      }
       .badge-demo {
         display: inline-flex;
         align-items: center;
@@ -155,14 +228,12 @@
             0 0 24px rgba(245, 158, 11, 0.25);
         }
       }
-
-      /* ── State toggle ── */
       .badge-toggle {
         display: flex;
         gap: 8px;
         align-items: center;
         justify-content: center;
-        margin-bottom: 48px;
+        margin-bottom: 40px;
         position: relative;
       }
       .state-pill {
@@ -195,8 +266,6 @@
         border-color: rgba(34, 197, 94, 0.3);
         color: var(--safe);
       }
-
-      /* ── Hero actions ── */
       .hero-actions {
         display: flex;
         gap: 12px;
@@ -205,14 +274,12 @@
         position: relative;
       }
 
-      /* ── Sections ── */
       .content-section {
         max-width: 1000px;
         margin: 0 auto;
         padding: 80px 32px;
       }
 
-      /* ── How it works ── */
       .steps-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -231,7 +298,6 @@
         font-size: 30px;
         font-weight: 800;
         color: rgba(251, 191, 36, 0.08);
-        letter-spacing: 0;
         line-height: 1;
         margin-bottom: 14px;
       }
@@ -247,10 +313,8 @@
         font-size: 10px;
         color: var(--dim);
         line-height: 1.7;
-        letter-spacing: 0.02em;
       }
 
-      /* ── Features ── */
       .features-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -280,11 +344,9 @@
         font-size: 9px;
         color: var(--dim);
         line-height: 1.7;
-        letter-spacing: 0.02em;
         margin-bottom: 10px;
       }
 
-      /* ── Products ── */
       .products-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -360,7 +422,44 @@
         opacity: 1;
       }
 
-      /* ── API snippet ── */
+      /* Trump card */
+      .trump-wrap {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 0 32px 64px;
+      }
+      .trump-card {
+        border: 1px solid rgba(239, 68, 68, 0.15);
+        border-radius: 6px;
+        background: rgba(239, 68, 68, 0.025);
+        padding: 20px 24px;
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+      }
+      .trump-icon {
+        font-size: 24px;
+        flex-shrink: 0;
+        line-height: 1;
+        margin-top: 2px;
+      }
+      .trump-title {
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        color: var(--urgent);
+        margin-bottom: 6px;
+      }
+      .trump-body {
+        font-size: 10px;
+        color: var(--dim);
+        line-height: 1.9;
+        letter-spacing: 0.02em;
+      }
+      .trump-body a {
+        color: var(--accent);
+      }
+
       .api-meta {
         margin-top: 16px;
         display: flex;
@@ -380,7 +479,6 @@
         font-style: normal;
       }
 
-      /* ── CTA ── */
       .cta-section {
         text-align: center;
         padding: 100px 32px;
@@ -426,15 +524,17 @@
         position: relative;
       }
 
-      /* ── Footer ── */
       footer {
         border-top: 1px solid var(--border);
-        padding: 22px 32px;
+        padding: 24px 32px 16px;
+      }
+      .footer-main {
         display: flex;
         align-items: center;
         justify-content: space-between;
         flex-wrap: wrap;
         gap: 12px;
+        margin-bottom: 16px;
       }
       .footer-logo {
         font-size: 11px;
@@ -461,17 +561,120 @@
         color: var(--accent);
         opacity: 1;
       }
+      .footer-bottom {
+        border-top: 1px solid var(--border);
+        padding-top: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
       .footer-copy {
         font-size: 9px;
         color: var(--faint);
         letter-spacing: 0.05em;
+      }
+      .footer-legal {
+        display: flex;
+        gap: 16px;
+      }
+      .footer-legal a {
+        font-size: 9px;
+        color: var(--faint);
+        letter-spacing: 0.08em;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      .footer-legal a:hover {
+        color: var(--dim);
+        opacity: 1;
+      }
+      .footer-disclaimer {
+        font-size: 8px;
+        color: var(--faint);
+        letter-spacing: 0.04em;
+        line-height: 1.7;
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid var(--border);
+        max-width: 800px;
+      }
+
+      /* Modals */
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 2000;
+        align-items: center;
+        justify-content: center;
+        padding: 32px;
+      }
+      .modal-overlay.open {
+        display: flex;
+      }
+      .modal {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        max-width: 600px;
+        width: 100%;
+        max-height: 80vh;
+        overflow-y: auto;
+        padding: 32px;
+        position: relative;
+      }
+      .modal-close {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        background: none;
+        border: none;
+        color: var(--dim);
+        font-size: 14px;
+        cursor: pointer;
+        font-family: var(--font-mono);
+        padding: 4px 8px;
+        border-radius: 3px;
+        transition: color 0.15s;
+      }
+      .modal-close:hover {
+        color: var(--text);
+      }
+      .modal-title {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.2em;
+        margin-bottom: 20px;
+        color: var(--text);
+      }
+      .modal-body {
+        font-size: 10px;
+        color: var(--dim);
+        line-height: 1.9;
+        letter-spacing: 0.02em;
+      }
+      .modal-body p {
+        margin-bottom: 10px;
+      }
+      .modal-body h3 {
+        font-size: 9px;
+        letter-spacing: 0.15em;
+        color: var(--accent);
+        margin: 18px 0 6px;
+        text-transform: uppercase;
+      }
+      .modal-body a {
+        color: var(--accent);
       }
     </style>
   </head>
   <body>
     <!-- Top Nav -->
     <nav class="top-nav">
-      <a href="/" class="nav-logo">
+      <a href="https://tushcmd.github.io/fns-fe/" class="nav-logo">
         <span class="nav-logo-icon">◎</span>
         <span class="nav-logo-name">FN<em>EWS</em>TEER</span>
       </a>
@@ -480,8 +683,8 @@
         <a href="#features">FEATURES</a>
         <a href="#products">PRODUCTS</a>
         <a href="#api">API</a>
-        <a href="apiv1/">API DOCS</a>
-        <a href="mcp/">MCP</a>
+        <a href="https://tushcmd.github.io/fns-fe/apiv1/">API DOCS</a>
+        <a href="https://tushcmd.github.io/fns-fe/mcp/">MCP</a>
         <a href="https://github.com/tushcmd/fnewsteer" target="_blank"
           >GITHUB</a
         >
@@ -524,7 +727,6 @@
         <span class="ticker-item"
           ><span class="ticker-dot safe"></span>USDCHF · CLEAR</span
         >
-        <!-- duplicate for seamless loop -->
         <span class="ticker-item"
           ><span class="ticker-dot safe"></span>EURUSD · CLEAR</span
         >
@@ -563,25 +765,25 @@
       <div class="orb orb-3"></div>
 
       <div class="hero-eyebrow fade-up">NEWS LOSS PREVENTION · v1.0.0</div>
-
       <h1 class="hero-title fade-up d1">
-        KNOW WHEN<br />
-        <span class="safe-word">TO TRADE</span><br />
-        KNOW WHEN <span class="block-word">NOT TO</span>
+        KNOW WHEN<br /><span class="safe-word">TO TRADE</span><br />KNOW WHEN
+        <span class="block-word">NOT TO</span>
       </h1>
-
       <p class="hero-sub fade-up d2">
         Stop getting stopped out by NFP, CPI, and FOMC.<br />
         FNEWSTEER puts a live CLEAR/BLOCKED signal directly on your TradingView
         chart.
       </p>
+      <div class="disclaimer-strip fade-up d2">
+        ⚠ Not financial advice — a timing tool, not a strategy. Always apply
+        your own analysis.
+      </div>
 
       <div id="live-badge" class="badge-demo fade-up d3">
         <div id="badge-dot" class="badge-dot"></div>
         <span id="badge-label" class="badge-label">BLOCKED</span>
         <span id="badge-sub" class="badge-sub">· NFP clears in 4:32</span>
       </div>
-
       <div class="badge-toggle fade-up d3">
         <div
           id="pill-blocked"
@@ -594,7 +796,6 @@
           CLEAR
         </div>
       </div>
-
       <div class="hero-actions fade-up d4">
         <a
           href="https://chromewebstore.google.com/detail/nfdcdhkgoiohipbhoalpnenhincbpnlc"
@@ -736,7 +937,9 @@
             FastAPI backend. Query /v1/news/check for any pair. Integrate into
             your own algo system or trading bot.
           </div>
-          <a href="apiv1/" class="product-link">VIEW API DOCS →</a>
+          <a href="https://tushcmd.github.io/fns-fe/apiv1/" class="product-link"
+            >VIEW API DOCS →</a
+          >
         </div>
         <div class="product-card">
           <div class="product-label">MODEL CONTEXT PROTOCOL</div>
@@ -745,10 +948,34 @@
             MCP server for Claude Desktop. Give your AI assistant real-time news
             blackout awareness for any trading pair.
           </div>
-          <a href="mcp/" class="product-link">SETUP FOR CLAUDE DESKTOP →</a>
+          <a href="https://tushcmd.github.io/fns-fe/mcp/" class="product-link"
+            >SETUP FOR CLAUDE DESKTOP →</a
+          >
         </div>
       </div>
     </section>
+
+    <!-- Trump card -->
+    <div class="trump-wrap">
+      <div class="trump-card">
+        <div class="trump-icon">🦅</div>
+        <div>
+          <div class="trump-title">
+            ⚠ CANNOT SAVE YOU FROM TRUMP-INDUCED MARKET EVENTS
+          </div>
+          <div class="trump-body">
+            FNEWSTEER tracks <em>scheduled</em> economic calendar events. It has
+            absolutely no power over unscheduled presidential tweets, tariff
+            announcements at 3am, or whatever gets posted from a golf cart. For
+            those, your best early warning system is
+            <a href="https://x.com" target="_blank">𝕏 / Twitter</a> — stay
+            active, follow the right accounts, and keep one eye on the feed. We
+            are not responsible for acts of government. No tool is. Good luck
+            out there. 🫡
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- API -->
     <section id="api" class="content-section" style="padding-top: 0">
@@ -783,6 +1010,13 @@
           SOURCE: <span>ForexFactory Calendar</span>
         </div>
         <div class="api-meta-item">POLL: <span>30s</span></div>
+        <div class="api-meta-item">
+          <a
+            href="https://tushcmd.github.io/fns-fe/apiv1/"
+            style="color: var(--accent); font-size: 9px; letter-spacing: 0.08em"
+            >FULL API DOCS →</a
+          >
+        </div>
       </div>
     </section>
 
@@ -811,36 +1045,215 @@
 
     <!-- Footer -->
     <footer>
-      <div class="footer-logo">FN<em>EWS</em>TEER</div>
-      <div class="footer-links">
-        <a href="apiv1/">API DOCS</a>
-        <a href="mcp/">MCP GUIDE</a>
-        <a href="event-taxonomy/">EVENT TAXONOMY</a>
-        <a href="https://github.com/tushcmd/fnewsteer" target="_blank"
-          >API GITHUB</a
-        >
-        <a href="https://github.com/tushcmd/fnewsteer-ce" target="_blank"
-          >EXTENSION GITHUB</a
-        >
-        <a
-          href="https://chromewebstore.google.com/detail/nfdcdhkgoiohipbhoalpnenhincbpnlc"
-          target="_blank"
-          >CHROME STORE</a
-        >
-        <a href="https://x.com/0xtush" target="_blank">𝕏 @0xtush</a>
+      <div class="footer-main">
+        <div class="footer-logo">FN<em>EWS</em>TEER</div>
+        <div class="footer-links">
+          <a href="https://tushcmd.github.io/fns-fe/apiv1/">API DOCS</a>
+          <a href="https://tushcmd.github.io/fns-fe/mcp/">MCP GUIDE</a>
+          <a href="https://tushcmd.github.io/fns-fe/event-taxonomy/"
+            >EVENT TAXONOMY</a
+          >
+          <a href="https://github.com/tushcmd/fnewsteer" target="_blank"
+            >API GITHUB</a
+          >
+          <a href="https://github.com/tushcmd/fnewsteer-ce" target="_blank"
+            >EXTENSION GITHUB</a
+          >
+          <a
+            href="https://chromewebstore.google.com/detail/nfdcdhkgoiohipbhoalpnenhincbpnlc"
+            target="_blank"
+            >CHROME STORE</a
+          >
+          <a href="https://x.com/0xtush" target="_blank">𝕏 @0xtush</a>
+        </div>
       </div>
-      <div class="footer-copy">© 2026 FNEWSTEER · Data: ForexFactory</div>
+      <div class="footer-bottom">
+        <div class="footer-copy">© 2026 FNEWSTEER · Data: ForexFactory</div>
+        <div class="footer-legal">
+          <a onclick="openModal('tos')">TERMS OF SERVICE</a>
+          <a onclick="openModal('privacy')">PRIVACY POLICY</a>
+          <a onclick="openModal('disclaimer')">DISCLAIMER</a>
+        </div>
+      </div>
+      <div class="footer-disclaimer">
+        ⚠ NOT FINANCIAL ADVICE — FNEWSTEER is an informational timing tool
+        designed to help traders avoid scheduled high-impact news events.
+        Nothing on this site constitutes financial, investment, or trading
+        advice. Trading forex carries significant risk of loss. Always conduct
+        your own research and consult a qualified financial advisor. The authors
+        accept no liability for any trading losses incurred.
+      </div>
     </footer>
 
+    <!-- Modals -->
+    <div
+      class="modal-overlay"
+      id="modal-tos"
+      onclick="if (event.target === this) closeModal('tos');"
+    >
+      <div class="modal">
+        <button class="modal-close" onclick="closeModal('tos')">✕</button>
+        <div class="modal-title">TERMS OF SERVICE</div>
+        <div class="modal-body">
+          <p>Last updated: April 2026</p>
+          <h3>1. Acceptance</h3>
+          <p>
+            By using FNEWSTEER (the "Service"), you agree to these Terms. If you
+            do not agree, do not use the Service.
+          </p>
+          <h3>2. Description</h3>
+          <p>
+            FNEWSTEER is a free, open-source informational tool that surfaces
+            scheduled economic calendar data from ForexFactory. It provides
+            CLEAR/BLOCKED signals based on predefined time windows around
+            high-impact events.
+          </p>
+          <h3>3. Not Financial Advice</h3>
+          <p>
+            The Service does not provide financial, investment, or trading
+            advice. CLEAR/BLOCKED signals are based purely on scheduled calendar
+            events and do not account for market conditions, your specific
+            strategy, risk tolerance, or any other factor. Do not rely on
+            FNEWSTEER as a basis for financial decisions.
+          </p>
+          <h3>4. No Guarantees</h3>
+          <p>
+            The Service is provided "as is" with no warranty of accuracy,
+            completeness, or fitness for any particular purpose. Calendar data
+            may be stale, incomplete, or incorrect. Blackout windows are
+            opinionated defaults and may not suit your strategy.
+          </p>
+          <h3>5. Limitation of Liability</h3>
+          <p>
+            To the fullest extent permitted by law, the authors of FNEWSTEER
+            shall not be liable for any trading losses, financial damages, or
+            any other harm arising from your use of the Service.
+          </p>
+          <h3>6. Third-Party Data</h3>
+          <p>
+            Economic event data is sourced from ForexFactory. FNEWSTEER does not
+            own or guarantee the accuracy of that data.
+          </p>
+          <h3>7. Open Source</h3>
+          <p>
+            FNEWSTEER is open-source under the applicable license in the GitHub
+            repositories. Use, modification, and distribution are subject to
+            those terms.
+          </p>
+          <h3>8. Changes</h3>
+          <p>
+            These terms may be updated at any time. Continued use of the Service
+            constitutes acceptance of any revised terms.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal-overlay"
+      id="modal-privacy"
+      onclick="if (event.target === this) closeModal('privacy');"
+    >
+      <div class="modal">
+        <button class="modal-close" onclick="closeModal('privacy')">✕</button>
+        <div class="modal-title">PRIVACY POLICY</div>
+        <div class="modal-body">
+          <p>Last updated: April 2026</p>
+          <h3>What We Collect</h3>
+          <p>
+            The FNEWSTEER website (this static site) collects no personal data.
+            There are no accounts, no cookies, no analytics trackers, and no
+            forms that submit personal information.
+          </p>
+          <h3>Chrome Extension</h3>
+          <p>
+            The Chrome Extension stores your API key and watchlist locally in
+            <code>chrome.storage.sync</code>, synced by Chrome to your Google
+            account if signed in. We do not receive, access, or store this data
+            on our servers.
+          </p>
+          <h3>API Requests</h3>
+          <p>
+            When you query the FNEWSTEER API, your request (including symbol
+            queried and API key) is processed by our hosted server. We do not
+            log individual request data beyond what is required for rate
+            limiting and abuse prevention.
+          </p>
+          <h3>Third Parties</h3>
+          <p>
+            This site loads fonts from Google Fonts. No advertising networks,
+            tracking pixels, or analytics scripts are used.
+          </p>
+          <h3>Contact</h3>
+          <p>
+            Questions?
+            <a href="https://x.com/0xtush" target="_blank">𝕏 @0xtush</a> or
+            <a href="https://github.com/tushcmd/fnewsteer" target="_blank"
+              >open an issue on GitHub</a
+            >.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal-overlay"
+      id="modal-disclaimer"
+      onclick="if (event.target === this) closeModal('disclaimer');"
+    >
+      <div class="modal">
+        <button class="modal-close" onclick="closeModal('disclaimer')">
+          ✕
+        </button>
+        <div class="modal-title">DISCLAIMER</div>
+        <div class="modal-body">
+          <h3>Not Financial Advice</h3>
+          <p>
+            FNEWSTEER is an educational and informational tool. Nothing on this
+            website, in the Chrome extension, or via the API constitutes
+            financial advice, investment advice, or trading recommendations of
+            any kind.
+          </p>
+          <h3>Risk Warning</h3>
+          <p>
+            Forex trading involves substantial risk of loss and is not
+            appropriate for all investors. You may lose some or all of your
+            invested capital.
+          </p>
+          <h3>No Guarantee of Results</h3>
+          <p>
+            Avoiding news events does not guarantee profitable trading.
+            FNEWSTEER reduces one specific risk factor but cannot protect
+            against all market risks — including unscheduled news events,
+            political statements, central bank emergency actions, geopolitical
+            shocks, or early-morning social media posts from world leaders.
+          </p>
+          <h3>Opinionated Defaults</h3>
+          <p>
+            The ±30 and ±60 minute blackout windows are based on common
+            practices among retail price action traders and prop firm rules.
+            They are not empirically optimised and may not suit your strategy or
+            risk profile.
+          </p>
+          <h3>Data Accuracy</h3>
+          <p>
+            Event data is sourced from ForexFactory and may be delayed,
+            incorrect, or incomplete. Always verify event times independently
+            before trading.
+          </p>
+        </div>
+      </div>
+    </div>
+
     <script>
-      let isBlocked = true;
-      let countdown = 272;
+      let isBlocked = true,
+        countdown = 272;
 
       function setBlocked() {
         isBlocked = true;
-        const dot = document.getElementById('badge-dot');
-        const label = document.getElementById('badge-label');
-        const badge = document.getElementById('live-badge');
+        const dot = document.getElementById('badge-dot'),
+          label = document.getElementById('badge-label'),
+          badge = document.getElementById('live-badge');
         dot.style.background = 'var(--danger)';
         dot.style.boxShadow = '0 0 8px var(--danger)';
         label.style.color = 'var(--danger)';
@@ -850,12 +1263,11 @@
         document.getElementById('pill-blocked').classList.remove('dim');
         document.getElementById('pill-clear').classList.remove('lit');
       }
-
       function setClear() {
         isBlocked = false;
-        const dot = document.getElementById('badge-dot');
-        const label = document.getElementById('badge-label');
-        const badge = document.getElementById('live-badge');
+        const dot = document.getElementById('badge-dot'),
+          label = document.getElementById('badge-label'),
+          badge = document.getElementById('live-badge');
         dot.style.background = 'var(--safe)';
         dot.style.boxShadow = '0 0 8px var(--safe)';
         label.style.color = 'var(--safe)';
@@ -867,15 +1279,27 @@
         document.getElementById('pill-clear').classList.add('lit');
         document.getElementById('pill-blocked').classList.add('dim');
       }
-
       setInterval(() => {
-        if (!isBlocked) return;
-        if (countdown > 0) countdown--;
-        const m = Math.floor(countdown / 60);
-        const s = countdown % 60;
+        if (!isBlocked || countdown <= 0) return;
+        countdown--;
+        const m = Math.floor(countdown / 60),
+          s = countdown % 60;
         document.getElementById('badge-sub').textContent =
           `· NFP clears in ${m}:${String(s).padStart(2, '0')}`;
       }, 1000);
+
+      function openModal(id) {
+        document.getElementById('modal-' + id).classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+      function closeModal(id) {
+        document.getElementById('modal-' + id).classList.remove('open');
+        document.body.style.overflow = '';
+      }
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape')
+          ['tos', 'privacy', 'disclaimer'].forEach(closeModal);
+      });
     </script>
   </body>
 </html>
