@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://tushcmd.github.io/fns-fe/sitemap.xml
