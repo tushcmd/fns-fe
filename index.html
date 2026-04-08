@@ -1,0 +1,1191 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FNEWSTEER — News Loss Prevention</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --bg: #0a0a0b;
+        --surface: #111113;
+        --border: #1e1e22;
+        --muted: #2a2a30;
+        --text: #e8e8ed;
+        --dim: #6b6b7a;
+        --safe: #22c55e;
+        --danger: #f59e0b;
+        --urgent: #ef4444;
+        --accent: #fbbf24;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+
+      /* ── Scanlines overlay ── */
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background: repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          rgba(0, 0, 0, 0.03) 2px,
+          rgba(0, 0, 0, 0.03) 4px
+        );
+        pointer-events: none;
+        z-index: 1000;
+      }
+
+      /* ── Noise texture ── */
+      body::after {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+        pointer-events: none;
+        z-index: 999;
+        opacity: 0.4;
+      }
+
+      /* ── Nav ── */
+      nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 32px;
+        background: rgba(10, 10, 11, 0.85);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border);
+      }
+      .nav-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .nav-logo-icon {
+        font-size: 20px;
+        color: var(--accent);
+      }
+      .nav-logo-name {
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.2em;
+      }
+      .nav-logo-name span {
+        color: var(--accent);
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+      }
+      .nav-links a {
+        color: var(--dim);
+        text-decoration: none;
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        transition: color 0.15s;
+      }
+      .nav-links a:hover {
+        color: var(--accent);
+      }
+      .nav-cta {
+        background: rgba(251, 191, 36, 0.1);
+        border: 1px solid rgba(251, 191, 36, 0.3);
+        color: var(--accent);
+        border-radius: 4px;
+        padding: 7px 16px;
+        font-family: inherit;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background 0.15s;
+      }
+      .nav-cta:hover {
+        background: rgba(251, 191, 36, 0.18);
+      }
+
+      /* ── Hero ── */
+      .hero {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 100px 32px 60px;
+        position: relative;
+        text-align: center;
+      }
+
+      /* Grid background */
+      .hero-grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(251, 191, 36, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(251, 191, 36, 0.03) 1px, transparent 1px);
+        background-size: 40px 40px;
+        mask-image: radial-gradient(
+          ellipse 80% 60% at 50% 50%,
+          black 40%,
+          transparent 100%
+        );
+      }
+
+      /* Glow orbs */
+      .orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        pointer-events: none;
+      }
+      .orb-1 {
+        width: 400px;
+        height: 400px;
+        background: rgba(251, 191, 36, 0.06);
+        top: 10%;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+      .orb-2 {
+        width: 300px;
+        height: 300px;
+        background: rgba(34, 197, 94, 0.04);
+        bottom: 20%;
+        left: 20%;
+      }
+      .orb-3 {
+        width: 250px;
+        height: 250px;
+        background: rgba(245, 158, 11, 0.05);
+        bottom: 30%;
+        right: 15%;
+      }
+
+      .hero-eyebrow {
+        font-size: 9px;
+        letter-spacing: 0.25em;
+        color: var(--dim);
+        margin-bottom: 24px;
+        border: 1px solid var(--border);
+        padding: 5px 14px;
+        border-radius: 20px;
+        background: var(--surface);
+      }
+      .hero-title {
+        font-size: clamp(32px, 6vw, 64px);
+        font-weight: 800;
+        letter-spacing: 0.15em;
+        line-height: 1.1;
+        margin-bottom: 8px;
+      }
+      .hero-title .accent {
+        color: var(--accent);
+      }
+      .hero-title .safe-word {
+        color: var(--safe);
+      }
+      .hero-title .block-word {
+        color: var(--danger);
+      }
+
+      .hero-sub {
+        font-size: clamp(11px, 1.5vw, 14px);
+        color: var(--dim);
+        letter-spacing: 0.06em;
+        line-height: 1.7;
+        max-width: 500px;
+        margin: 16px auto 40px;
+      }
+
+      .hero-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-bottom: 60px;
+      }
+      .btn-primary {
+        background: rgba(251, 191, 36, 0.12);
+        border: 1px solid rgba(251, 191, 36, 0.4);
+        color: var(--accent);
+        border-radius: 4px;
+        padding: 12px 28px;
+        font-family: inherit;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.15s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .btn-primary:hover {
+        background: rgba(251, 191, 36, 0.2);
+        transform: translateY(-1px);
+      }
+      .btn-secondary {
+        background: none;
+        border: 1px solid var(--border);
+        color: var(--dim);
+        border-radius: 4px;
+        padding: 12px 28px;
+        font-family: inherit;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.15s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .btn-secondary:hover {
+        border-color: var(--muted);
+        color: var(--text);
+      }
+
+      /* ── Live badge mockup ── */
+      .badge-demo {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 18px;
+        border-radius: 8px;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        background: rgba(245, 158, 11, 0.06);
+        margin-bottom: 20px;
+        animation: badge-pulse 3s ease-in-out infinite;
+      }
+      .badge-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--danger);
+        box-shadow: 0 0 8px var(--danger);
+        animation: dot-pulse 1.5s ease-in-out infinite;
+      }
+      .badge-text {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        color: var(--danger);
+      }
+      .badge-sub {
+        font-size: 9px;
+        color: var(--dim);
+        margin-left: 4px;
+      }
+
+      @keyframes badge-pulse {
+        0%,
+        100% {
+          border-color: rgba(245, 158, 11, 0.3);
+          background: rgba(245, 158, 11, 0.06);
+        }
+        50% {
+          border-color: rgba(245, 158, 11, 0.5);
+          background: rgba(245, 158, 11, 0.1);
+        }
+      }
+      @keyframes dot-pulse {
+        0%,
+        100% {
+          box-shadow: 0 0 4px var(--danger);
+        }
+        50% {
+          box-shadow:
+            0 0 12px var(--danger),
+            0 0 20px rgba(245, 158, 11, 0.3);
+        }
+      }
+
+      /* toggle demo */
+      .badge-toggle {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 60px;
+      }
+      .state-pill {
+        padding: 6px 14px;
+        border-radius: 3px;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 1px solid transparent;
+      }
+      .state-pill.blocked-pill {
+        background: rgba(245, 158, 11, 0.1);
+        border-color: rgba(245, 158, 11, 0.3);
+        color: var(--danger);
+      }
+      .state-pill.clear-pill {
+        background: rgba(34, 197, 94, 0.05);
+        border-color: rgba(34, 197, 94, 0.1);
+        color: rgba(34, 197, 94, 0.4);
+      }
+      .state-pill.clear-pill.active-pill {
+        background: rgba(34, 197, 94, 0.1);
+        border-color: rgba(34, 197, 94, 0.3);
+        color: var(--safe);
+      }
+      .state-pill.blocked-pill.inactive-pill {
+        background: rgba(245, 158, 11, 0.05);
+        border-color: rgba(245, 158, 11, 0.1);
+        color: rgba(245, 158, 11, 0.3);
+      }
+
+      /* ── Section ── */
+      section {
+        padding: 80px 32px;
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+      .section-label {
+        font-size: 8px;
+        letter-spacing: 0.25em;
+        color: var(--dim);
+        margin-bottom: 40px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      /* ── How it works ── */
+      .steps {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1px;
+        background: var(--border);
+      }
+      .step {
+        background: var(--bg);
+        padding: 28px 24px;
+        position: relative;
+        transition: background 0.2s;
+      }
+      .step:hover {
+        background: var(--surface);
+      }
+      .step-num {
+        font-size: 32px;
+        font-weight: 800;
+        color: rgba(251, 191, 36, 0.1);
+        letter-spacing: 0;
+        line-height: 1;
+        margin-bottom: 16px;
+      }
+      .step-title {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        margin-bottom: 8px;
+        color: var(--text);
+      }
+      .step-desc {
+        font-size: 10px;
+        color: var(--dim);
+        line-height: 1.7;
+        letter-spacing: 0.02em;
+      }
+
+      /* ── Features grid ── */
+      .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1px;
+        background: var(--border);
+      }
+      .feature {
+        background: var(--bg);
+        padding: 24px;
+        transition: background 0.2s;
+      }
+      .feature:hover {
+        background: var(--surface);
+      }
+      .feature-icon {
+        font-size: 20px;
+        margin-bottom: 12px;
+      }
+      .feature-title {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        margin-bottom: 6px;
+      }
+      .feature-desc {
+        font-size: 9px;
+        color: var(--dim);
+        line-height: 1.7;
+        letter-spacing: 0.02em;
+      }
+      .feature-tag {
+        display: inline-block;
+        margin-top: 10px;
+        font-size: 8px;
+        letter-spacing: 0.1em;
+        padding: 3px 8px;
+        border-radius: 2px;
+      }
+      .tag-safe {
+        background: rgba(34, 197, 94, 0.1);
+        color: var(--safe);
+      }
+      .tag-danger {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--danger);
+      }
+      .tag-dim {
+        background: var(--muted);
+        color: var(--dim);
+      }
+
+      /* ── Products ── */
+      .products {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 16px;
+      }
+      .product-card {
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--surface);
+        padding: 24px;
+        transition:
+          border-color 0.2s,
+          transform 0.2s;
+        position: relative;
+        overflow: hidden;
+      }
+      .product-card:hover {
+        border-color: rgba(251, 191, 36, 0.2);
+        transform: translateY(-2px);
+      }
+      .product-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--accent),
+          transparent
+        );
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+      .product-card:hover::before {
+        opacity: 1;
+      }
+      .product-label {
+        font-size: 8px;
+        letter-spacing: 0.2em;
+        color: var(--dim);
+        margin-bottom: 12px;
+      }
+      .product-name {
+        font-size: 14px;
+        font-weight: 800;
+        letter-spacing: 0.15em;
+        margin-bottom: 8px;
+      }
+      .product-name span {
+        color: var(--accent);
+      }
+      .product-desc {
+        font-size: 10px;
+        color: var(--dim);
+        line-height: 1.7;
+        margin-bottom: 16px;
+      }
+      .product-link {
+        font-size: 9px;
+        letter-spacing: 0.1em;
+        color: var(--accent);
+        text-decoration: none;
+        border-bottom: 1px solid rgba(251, 191, 36, 0.2);
+        padding-bottom: 1px;
+        transition: border-color 0.15s;
+      }
+      .product-link:hover {
+        border-color: var(--accent);
+      }
+
+      /* ── API snippet ── */
+      .code-block {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 20px 24px;
+        margin-top: 24px;
+        position: relative;
+        overflow: hidden;
+      }
+      .code-block::before {
+        content: 'BASH';
+        position: absolute;
+        top: 12px;
+        right: 16px;
+        font-size: 7px;
+        letter-spacing: 0.2em;
+        color: var(--muted);
+      }
+      .code-block pre {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        line-height: 1.8;
+        color: var(--dim);
+        overflow-x: auto;
+      }
+      .code-block .kw {
+        color: var(--accent);
+      }
+      .code-block .str {
+        color: var(--safe);
+      }
+      .code-block .cmt {
+        color: var(--muted);
+      }
+      .code-block .key {
+        color: #7dd3fc;
+      }
+
+      /* ── CTA section ── */
+      .cta-section {
+        text-align: center;
+        padding: 100px 32px;
+        border-top: 1px solid var(--border);
+        position: relative;
+        overflow: hidden;
+      }
+      .cta-section::before {
+        content: '';
+        position: absolute;
+        width: 600px;
+        height: 300px;
+        background: radial-gradient(
+          ellipse,
+          rgba(251, 191, 36, 0.04) 0%,
+          transparent 70%
+        );
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+      .cta-title {
+        font-size: clamp(24px, 4vw, 48px);
+        font-weight: 800;
+        letter-spacing: 0.15em;
+        margin-bottom: 16px;
+        line-height: 1.2;
+      }
+      .cta-sub {
+        font-size: 11px;
+        color: var(--dim);
+        letter-spacing: 0.06em;
+        margin-bottom: 40px;
+      }
+
+      /* ── Footer ── */
+      footer {
+        border-top: 1px solid var(--border);
+        padding: 24px 32px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .footer-logo {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.2em;
+      }
+      .footer-logo span {
+        color: var(--accent);
+      }
+      .footer-links {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+      .footer-links a {
+        font-size: 9px;
+        letter-spacing: 0.1em;
+        color: var(--dim);
+        text-decoration: none;
+        transition: color 0.15s;
+      }
+      .footer-links a:hover {
+        color: var(--accent);
+      }
+      .footer-copy {
+        font-size: 9px;
+        color: var(--muted);
+        letter-spacing: 0.05em;
+      }
+
+      /* ── Ticker ── */
+      .ticker {
+        background: var(--surface);
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        padding: 10px 0;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+      .ticker-inner {
+        display: inline-flex;
+        gap: 40px;
+        animation: ticker 20s linear infinite;
+      }
+      .ticker-item {
+        font-size: 9px;
+        letter-spacing: 0.12em;
+        color: var(--dim);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .ticker-item .safe-dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--safe);
+      }
+      .ticker-item .block-dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--danger);
+      }
+      @keyframes ticker {
+        from {
+          transform: translateX(0);
+        }
+        to {
+          transform: translateX(-50%);
+        }
+      }
+
+      /* anim */
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .fade-up {
+        animation: fadeUp 0.6s ease forwards;
+      }
+      .delay-1 {
+        animation-delay: 0.1s;
+        opacity: 0;
+      }
+      .delay-2 {
+        animation-delay: 0.2s;
+        opacity: 0;
+      }
+      .delay-3 {
+        animation-delay: 0.3s;
+        opacity: 0;
+      }
+      .delay-4 {
+        animation-delay: 0.4s;
+        opacity: 0;
+      }
+      .delay-5 {
+        animation-delay: 0.5s;
+        opacity: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Nav -->
+    <nav>
+      <div class="nav-logo">
+        <span class="nav-logo-icon">◎</span>
+        <div class="nav-logo-name">FN<span>EWS</span>TEER</div>
+      </div>
+      <div class="nav-links">
+        <a href="#how">HOW IT WORKS</a>
+        <a href="#features">FEATURES</a>
+        <a href="#products">PRODUCTS</a>
+        <a href="#api">API</a>
+        <a href="https://github.com/tushcmd/fnewsteer" target="_blank"
+          >GITHUB</a
+        >
+      </div>
+      <a
+        href="https://chromewebstore.google.com/detail/nfdcdhkgoiohipbhoalpnenhincbpnlc"
+        target="_blank"
+        class="nav-cta"
+        >ADD TO CHROME</a
+      >
+    </nav>
+
+    <!-- Ticker -->
+    <div class="ticker" style="margin-top: 57px">
+      <div class="ticker-inner">
+        <span class="ticker-item"
+          ><span class="safe-dot"></span>EURUSD · CLEAR</span
+        >
+        <span class="ticker-item"
+          ><span class="block-dot"></span>GBPUSD · BLOCKED · NFP in 12m</span
+        >
+        <span class="ticker-item"
+          ><span class="safe-dot"></span>USDJPY · CLEAR</span
+        >
+        <span class="ticker-item"
+          ><span class="block-dot"></span>USDCAD · BLOCKED · CPI window
+          open</span
+        >
+        <span class="ticker-item"
+          ><span class="safe-dot"></span>AUDUSD · CLEAR</span
+        >
+        <span class="ticker-item"
+          ><span class="safe-dot"></span>NZDUSD · CLEAR</span
+        >
+        <span class="ticker-item"
+          ><span class="block-dot"></span>GBPJPY · BLOCKED · BOE decision</span
+        >
+        <span class="ticker-item"
+          ><span class="safe-dot"></span>USDCHF · CLEAR</span
+        >
+        <!-- duplicate for seamless loop -->
+        <span class="ticker-item"
+          ><span class="safe-dot"></span>EURUSD · CLEAR</span
+        >
+        <span class="ticker-item"
+          ><span class="block-dot"></span>GBPUSD · BLOCKED · NFP in 12m</span
+        >
+        <span class="ticker-item"
+          ><span class="safe-dot"></span>USDJPY · CLEAR</span
+        >
+        <span class="ticker-item"
+          ><span class="block-dot"></span>USDCAD · BLOCKED · CPI window
+          open</span
+        >
+        <span class="ticker-item"
+          ><span class="safe-dot"></span>AUDUSD · CLEAR</span
+        >
+        <span class="ticker-item"
+          ><span class="safe-dot"></span>NZDUSD · CLEAR</span
+        >
+        <span class="ticker-item"
+          ><span class="block-dot"></span>GBPJPY · BLOCKED · BOE decision</span
+        >
+        <span class="ticker-item"
+          ><span class="safe-dot"></span>USDCHF · CLEAR</span
+        >
+      </div>
+    </div>
+
+    <!-- Hero -->
+    <div class="hero">
+      <div class="hero-grid"></div>
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+
+      <div class="hero-eyebrow fade-up">NEWS LOSS PREVENTION · v1.0.0</div>
+
+      <h1 class="hero-title fade-up delay-1">
+        KNOW WHEN<br /><span class="safe-word">TO TRADE</span><br />KNOW WHEN
+        <span class="block-word">NOT TO</span>
+      </h1>
+
+      <p class="hero-sub fade-up delay-2">
+        Stop getting stopped out by NFP, CPI, and FOMC.<br />
+        FNEWSTEER puts a live CLEAR/BLOCKED signal directly on your TradingView
+        chart.
+      </p>
+
+      <div id="live-badge" class="badge-demo fade-up delay-3">
+        <div id="badge-dot" class="badge-dot"></div>
+        <span id="badge-text" class="badge-text">BLOCKED</span>
+        <span id="badge-sub" class="badge-sub">· NFP clears in 4:32</span>
+      </div>
+
+      <div class="badge-toggle fade-up delay-3">
+        <div
+          id="blocked-pill"
+          class="state-pill blocked-pill"
+          onclick="setBlocked()"
+        >
+          BLOCKED
+        </div>
+        <div id="clear-pill" class="state-pill clear-pill" onclick="setClear()">
+          CLEAR
+        </div>
+      </div>
+
+      <div class="hero-actions fade-up delay-4">
+        <a
+          href="https://chromewebstore.google.com/detail/nfdcdhkgoiohipbhoalpnenhincbpnlc"
+          target="_blank"
+          class="btn-primary"
+        >
+          ⬇ ADD TO CHROME — FREE
+        </a>
+        <a
+          href="https://github.com/tushcmd/fnewsteer"
+          target="_blank"
+          class="btn-secondary"
+        >
+          ⌥ VIEW ON GITHUB
+        </a>
+      </div>
+    </div>
+
+    <!-- How it works -->
+    <section
+      id="how"
+      style="max-width: 1000px; margin: 0 auto; padding: 80px 32px"
+    >
+      <div class="section-label">01 — HOW IT WORKS</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">01</div>
+          <div class="step-title">INSTALL</div>
+          <div class="step-desc">
+            Add the free Chrome extension. Enter your API URL and key in
+            settings. Done in 60 seconds.
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <div class="step-title">OPEN TRADINGVIEW</div>
+          <div class="step-desc">
+            The extension auto-detects your active pair from the chart title. No
+            clicking required.
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <div class="step-title">WATCH THE BADGE</div>
+          <div class="step-desc">
+            A draggable CLEAR or BLOCKED badge appears on your chart, polling
+            every 30 seconds.
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">04</div>
+          <div class="step-title">TRADE WITH CONFIDENCE</div>
+          <div class="step-desc">
+            Desktop notification fires before each blackout window. You get out
+            in time, every time.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section
+      id="features"
+      style="max-width: 1000px; margin: 0 auto; padding: 0 32px 80px"
+    >
+      <div class="section-label">02 — FEATURES</div>
+      <div class="features">
+        <div class="feature">
+          <div class="feature-icon">📡</div>
+          <div class="feature-title">AUTO-PAIR DETECTION</div>
+          <div class="feature-desc">
+            MutationObserver reads the TradingView page title. Switch charts,
+            badge updates instantly.
+          </div>
+          <span class="feature-tag tag-safe">PASSIVE</span>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">◈</div>
+          <div class="feature-title">FLOATING BADGE</div>
+          <div class="feature-desc">
+            Draggable CLEAR/BLOCKED overlay on every TradingView chart.
+            Countdown timer to clear.
+          </div>
+          <span class="feature-tag tag-danger">REALTIME</span>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">🔔</div>
+          <div class="feature-title">DESKTOP NOTIFICATIONS</div>
+          <div class="feature-desc">
+            Configurable warning lead time. Get notified N minutes before each
+            blackout window opens.
+          </div>
+          <span class="feature-tag tag-dim">CONFIGURABLE</span>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">◉</div>
+          <div class="feature-title">TOOLBAR BADGE</div>
+          <div class="feature-desc">
+            Green ● CLEAR · Amber ! BLOCKED · Grey ? Offline. Signal always
+            visible in your toolbar.
+          </div>
+          <span class="feature-tag tag-safe">ALWAYS ON</span>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">≡</div>
+          <div class="feature-title">MULTI-PAIR WATCHLIST</div>
+          <div class="feature-desc">
+            Monitor any number of pairs simultaneously. Background worker checks
+            all on every 30s poll.
+          </div>
+          <span class="feature-tag tag-dim">UNLIMITED</span>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">⚙</div>
+          <div class="feature-title">SMART DEFAULTS</div>
+          <div class="feature-desc">
+            ±60 min for FOMC/NFP/CPI/GDP. ±30 min for all other High impact.
+            Override anytime.
+          </div>
+          <span class="feature-tag tag-danger">HIGH IMPACT</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Products -->
+    <section
+      id="products"
+      style="max-width: 1000px; margin: 0 auto; padding: 0 32px 80px"
+    >
+      <div class="section-label">03 — THREE PRODUCTS, ONE SIGNAL</div>
+      <div class="products">
+        <div class="product-card">
+          <div class="product-label">CHROME EXTENSION</div>
+          <div class="product-name">FN<span>EWS</span>TEER CE</div>
+          <div class="product-desc">
+            Live CLEAR/BLOCKED badge on TradingView. Popup with watchlist, quick
+            pair selector, and countdown. Free.
+          </div>
+          <a
+            href="https://chromewebstore.google.com/detail/nfdcdhkgoiohipbhoalpnenhincbpnlc"
+            target="_blank"
+            class="product-link"
+            >INSTALL FROM CHROME STORE →</a
+          >
+        </div>
+        <div class="product-card">
+          <div class="product-label">REST API</div>
+          <div class="product-name">FN<span>EWS</span>TEER API</div>
+          <div class="product-desc">
+            FastAPI backend. Query /v1/news/check for any pair. Integrate into
+            your own algo system or trading bot.
+          </div>
+          <a
+            href="https://github.com/tushcmd/fnewsteer"
+            target="_blank"
+            class="product-link"
+            >VIEW API DOCS ON GITHUB →</a
+          >
+        </div>
+        <div class="product-card">
+          <div class="product-label">MODEL CONTEXT PROTOCOL</div>
+          <div class="product-name">FN<span>EWS</span>TEER MCP</div>
+          <div class="product-desc">
+            MCP server for Claude Desktop. Give your AI assistant real-time news
+            blackout awareness for any trading pair.
+          </div>
+          <a
+            href="https://github.com/tushcmd/fnewsteer"
+            target="_blank"
+            class="product-link"
+            >SETUP FOR CLAUDE DESKTOP →</a
+          >
+        </div>
+      </div>
+    </section>
+
+    <!-- API -->
+    <section
+      id="api"
+      style="max-width: 1000px; margin: 0 auto; padding: 0 32px 80px"
+    >
+      <div class="section-label">04 — OPEN API</div>
+      <p
+        style="
+          font-size: 11px;
+          color: var(--dim);
+          line-height: 1.8;
+          max-width: 560px;
+          margin-bottom: 8px;
+        "
+      >
+        The FNEWSTEER API is open. Query any forex pair, get a CLEAR/BLOCKED
+        signal with blocking event details and upcoming events.
+      </p>
+      <div class="code-block">
+        <pre><span class="cmt"># Check if EURUSD is safe to trade right now</span>
+<span class="kw">curl</span> <span class="str">https://fnewsteer-api.onrender.com/v1/news/check</span> \
+  -H <span class="str">"X-API-Key: &lt;your-key&gt;"</span> \
+  -G -d <span class="str">"symbol=EURUSD"</span>
+
+<span class="cmt"># Response</span>
+{
+  <span class="key">"safe_to_trade"</span>: false,
+  <span class="key">"blocking_events"</span>: [{
+    <span class="key">"title"</span>: <span class="str">"Non-Farm Payrolls"</span>,
+    <span class="key">"currency"</span>: <span class="str">"USD"</span>,
+    <span class="key">"impact"</span>: <span class="str">"High"</span>,
+    <span class="key">"window_end"</span>: <span class="str">"2026-04-08T14:30:00Z"</span>
+  }]
+}</pre>
+      </div>
+      <div style="margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap">
+        <div style="font-size: 9px; color: var(--dim); letter-spacing: 0.08em">
+          BASE URL:
+          <span style="color: var(--accent)"
+            >https://fnewsteer-api.onrender.com</span
+          >
+        </div>
+        <div style="font-size: 9px; color: var(--dim); letter-spacing: 0.08em">
+          SOURCE: <span style="color: var(--text)">ForexFactory Calendar</span>
+        </div>
+        <div style="font-size: 9px; color: var(--dim); letter-spacing: 0.08em">
+          POLL: <span style="color: var(--text)">30s</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <div class="cta-section">
+      <div class="cta-title">
+        STOP TRADING<br />INTO
+        <span style="color: var(--danger)">BLACKOUTS</span>
+      </div>
+      <div class="cta-sub">Free Chrome extension. Open API. No excuses.</div>
+      <div
+        style="
+          display: flex;
+          gap: 12px;
+          justify-content: center;
+          flex-wrap: wrap;
+        "
+      >
+        <a
+          href="https://chromewebstore.google.com/detail/nfdcdhkgoiohipbhoalpnenhincbpnlc"
+          target="_blank"
+          class="btn-primary"
+          >⬇ ADD TO CHROME — FREE</a
+        >
+        <a
+          href="https://github.com/tushcmd/fnewsteer-ce"
+          target="_blank"
+          class="btn-secondary"
+          >⌥ EXTENSION REPO</a
+        >
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <div class="footer-logo">FN<span>EWS</span>TEER</div>
+      <div class="footer-links">
+        <a href="https://github.com/tushcmd/fnewsteer" target="_blank"
+          >API GITHUB</a
+        >
+        <a href="https://github.com/tushcmd/fnewsteer-ce" target="_blank"
+          >EXTENSION GITHUB</a
+        >
+        <a
+          href="https://chromewebstore.google.com/detail/nfdcdhkgoiohipbhoalpnenhincbpnlc"
+          target="_blank"
+          >CHROME STORE</a
+        >
+        <a href="https://x.com/0xtush" target="_blank">𝕏 @0xtush</a>
+      </div>
+      <div class="footer-copy">© 2026 FNEWSTEER · Data: ForexFactory</div>
+    </footer>
+
+    <script>
+      // Badge toggle demo
+      let isBlocked = true;
+      let countdown = 272;
+
+      function setBlocked() {
+        isBlocked = true;
+        document.getElementById('badge-dot').style.background = 'var(--danger)';
+        document.getElementById('badge-dot').style.boxShadow =
+          '0 0 8px var(--danger)';
+        document.getElementById('badge-text').style.color = 'var(--danger)';
+        document.getElementById('badge-text').textContent = 'BLOCKED';
+        document.getElementById('live-badge').style.borderColor =
+          'rgba(245,158,11,0.3)';
+        document.getElementById('live-badge').style.background =
+          'rgba(245,158,11,0.06)';
+        document
+          .getElementById('blocked-pill')
+          .classList.remove('inactive-pill');
+        document.getElementById('clear-pill').classList.remove('active-pill');
+      }
+
+      function setClear() {
+        isBlocked = false;
+        document.getElementById('badge-dot').style.background = 'var(--safe)';
+        document.getElementById('badge-dot').style.boxShadow =
+          '0 0 8px var(--safe)';
+        document.getElementById('badge-text').style.color = 'var(--safe)';
+        document.getElementById('badge-text').textContent = 'CLEAR';
+        document.getElementById('badge-sub').textContent =
+          '· next event in 47m';
+        document.getElementById('live-badge').style.borderColor =
+          'rgba(34,197,94,0.3)';
+        document.getElementById('live-badge').style.background =
+          'rgba(34,197,94,0.06)';
+        document.getElementById('clear-pill').classList.add('active-pill');
+        document.getElementById('blocked-pill').classList.add('inactive-pill');
+      }
+
+      // Countdown tick
+      setInterval(() => {
+        if (!isBlocked) return;
+        if (countdown > 0) countdown--;
+        const m = Math.floor(countdown / 60);
+        const s = countdown % 60;
+        document.getElementById('badge-sub').textContent =
+          `· NFP clears in ${m}:${String(s).padStart(2, '0')}`;
+      }, 1000);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1438 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FNEWSTEER MCP — Claude Installation Guide</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --bg: #0a0a0b;
+        --surface: #111113;
+        --border: #1e1e22;
+        --muted: #2a2a30;
+        --text: #e8e8ed;
+        --dim: #6b6b7a;
+        --safe: #22c55e;
+        --danger: #f59e0b;
+        --urgent: #ef4444;
+        --accent: #fbbf24;
+        --blue: #7dd3fc;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        -webkit-font-smoothing: antialiased;
+        line-height: 1.7;
+      }
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background: repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          rgba(0, 0, 0, 0.025) 2px,
+          rgba(0, 0, 0, 0.025) 4px
+        );
+        pointer-events: none;
+        z-index: 1000;
+      }
+
+      /* Layout */
+      .layout {
+        display: flex;
+        min-height: 100vh;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        width: 240px;
+        flex-shrink: 0;
+        border-right: 1px solid var(--border);
+        background: var(--surface);
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow-y: auto;
+        padding: 24px 0;
+      }
+      .sidebar-logo {
+        padding: 0 20px 20px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 16px;
+      }
+      .logo-icon {
+        font-size: 18px;
+        color: var(--accent);
+      }
+      .logo-name {
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.2em;
+        margin-top: 4px;
+      }
+      .logo-name span {
+        color: var(--accent);
+      }
+      .logo-sub {
+        font-size: 8px;
+        letter-spacing: 0.18em;
+        color: var(--dim);
+        margin-top: 2px;
+      }
+
+      .nav-section {
+        padding: 0 20px;
+        margin-bottom: 20px;
+      }
+      .nav-section-title {
+        font-size: 7px;
+        letter-spacing: 0.2em;
+        color: var(--muted);
+        margin-bottom: 8px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid var(--border);
+      }
+      .nav-item {
+        display: block;
+        padding: 5px 0;
+        font-size: 9px;
+        letter-spacing: 0.08em;
+        color: var(--dim);
+        text-decoration: none;
+        transition: color 0.15s;
+        cursor: pointer;
+      }
+      .nav-item:hover,
+      .nav-item.active {
+        color: var(--accent);
+      }
+      .nav-item.active {
+        border-left: 2px solid var(--accent);
+        padding-left: 8px;
+        margin-left: -10px;
+      }
+
+      /* Main content */
+      .main {
+        flex: 1;
+        max-width: 760px;
+        padding: 48px 48px 80px;
+        overflow-y: auto;
+      }
+
+      /* Typography */
+      h1 {
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: 0.15em;
+        margin-bottom: 8px;
+        line-height: 1.2;
+      }
+      h1 span {
+        color: var(--accent);
+      }
+      h2 {
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        margin: 40px 0 16px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--border);
+        color: var(--text);
+      }
+      h2 .num {
+        color: var(--accent);
+        margin-right: 8px;
+      }
+      h3 {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        margin: 24px 0 10px;
+        color: var(--text);
+      }
+      p {
+        font-size: 11px;
+        color: var(--dim);
+        line-height: 1.8;
+        margin-bottom: 12px;
+        letter-spacing: 0.02em;
+      }
+      ul,
+      ol {
+        padding-left: 0;
+        margin-bottom: 12px;
+      }
+      li {
+        font-size: 11px;
+        color: var(--dim);
+        line-height: 1.8;
+        letter-spacing: 0.02em;
+        list-style: none;
+        padding-left: 16px;
+        position: relative;
+      }
+      li::before {
+        content: '·';
+        position: absolute;
+        left: 0;
+        color: var(--accent);
+      }
+      ol {
+        counter-reset: list;
+      }
+      ol li {
+        counter-increment: list;
+      }
+      ol li::before {
+        content: counter(list) '.';
+        color: var(--accent);
+        font-weight: 700;
+        font-size: 10px;
+      }
+
+      /* Hero badge */
+      .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 14px;
+        border-radius: 3px;
+        background: rgba(34, 197, 94, 0.08);
+        border: 1px solid rgba(34, 197, 94, 0.2);
+        font-size: 9px;
+        letter-spacing: 0.12em;
+        color: var(--safe);
+        margin-bottom: 24px;
+      }
+      .hero-badge-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--safe);
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+        }
+        50% {
+          box-shadow: 0 0 0 4px rgba(34, 197, 94, 0);
+        }
+      }
+
+      .page-desc {
+        font-size: 12px;
+        color: var(--dim);
+        line-height: 1.8;
+        max-width: 560px;
+        margin-bottom: 8px;
+        border-left: 2px solid var(--accent);
+        padding-left: 16px;
+      }
+
+      /* Code blocks */
+      .code-wrap {
+        position: relative;
+        margin: 12px 0 20px;
+      }
+      .code-lang {
+        position: absolute;
+        top: 10px;
+        right: 14px;
+        font-size: 7px;
+        letter-spacing: 0.2em;
+        color: var(--muted);
+      }
+      .code-copy {
+        position: absolute;
+        top: 8px;
+        right: 50px;
+        background: var(--muted);
+        border: none;
+        color: var(--dim);
+        border-radius: 3px;
+        padding: 3px 8px;
+        font-family: inherit;
+        font-size: 8px;
+        letter-spacing: 0.1em;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .code-copy:hover {
+        color: var(--text);
+        background: #3a3a42;
+      }
+      pre {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 16px 18px;
+        overflow-x: auto;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        line-height: 1.8;
+        color: var(--dim);
+      }
+      .kw {
+        color: var(--accent);
+      }
+      .str {
+        color: var(--safe);
+      }
+      .key {
+        color: var(--blue);
+      }
+      .cmt {
+        color: var(--muted);
+      }
+      .val {
+        color: #c084fc;
+      }
+
+      /* Inline code */
+      code {
+        background: var(--muted);
+        border-radius: 3px;
+        padding: 2px 6px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        color: var(--accent);
+        letter-spacing: 0.02em;
+      }
+
+      /* Tables */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 12px 0 20px;
+        font-size: 10px;
+      }
+      th {
+        background: var(--surface);
+        color: var(--dim);
+        padding: 8px 12px;
+        text-align: left;
+        font-size: 8px;
+        letter-spacing: 0.15em;
+        border-bottom: 1px solid var(--border);
+        border-top: 1px solid var(--border);
+      }
+      td {
+        padding: 8px 12px;
+        border-bottom: 1px solid rgba(30, 30, 34, 0.6);
+        color: var(--dim);
+        vertical-align: top;
+      }
+      tr:hover td {
+        background: rgba(255, 255, 255, 0.01);
+      }
+      td:first-child {
+        color: var(--accent);
+        font-weight: 600;
+      }
+      td code {
+        background: transparent;
+        padding: 0;
+        color: var(--accent);
+      }
+
+      /* Callouts */
+      .callout {
+        border-radius: 4px;
+        padding: 12px 16px;
+        margin: 12px 0 20px;
+        font-size: 10px;
+        line-height: 1.7;
+        letter-spacing: 0.02em;
+      }
+      .callout-warn {
+        background: rgba(245, 158, 11, 0.06);
+        border: 1px solid rgba(245, 158, 11, 0.2);
+        color: rgba(245, 158, 11, 0.8);
+      }
+      .callout-info {
+        background: rgba(125, 211, 252, 0.05);
+        border: 1px solid rgba(125, 211, 252, 0.15);
+        color: rgba(125, 211, 252, 0.8);
+      }
+      .callout-safe {
+        background: rgba(34, 197, 94, 0.05);
+        border: 1px solid rgba(34, 197, 94, 0.15);
+        color: rgba(34, 197, 94, 0.8);
+      }
+      .callout-icon {
+        margin-right: 6px;
+      }
+
+      /* Prompt examples */
+      .prompt-grid {
+        display: grid;
+        gap: 8px;
+        margin: 12px 0 20px;
+      }
+      .prompt-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 12px 14px;
+        transition: border-color 0.2s;
+        cursor: pointer;
+      }
+      .prompt-card:hover {
+        border-color: rgba(251, 191, 36, 0.2);
+      }
+      .prompt-label {
+        font-size: 8px;
+        letter-spacing: 0.15em;
+        color: var(--dim);
+        margin-bottom: 6px;
+      }
+      .prompt-text {
+        font-size: 10px;
+        color: var(--text);
+        line-height: 1.6;
+        letter-spacing: 0.02em;
+      }
+      .prompt-copy {
+        display: none;
+        float: right;
+        background: var(--muted);
+        border: none;
+        color: var(--dim);
+        border-radius: 2px;
+        padding: 2px 7px;
+        font-family: inherit;
+        font-size: 8px;
+        cursor: pointer;
+      }
+      .prompt-card:hover .prompt-copy {
+        display: block;
+      }
+
+      /* Tools table special */
+      .tool-name {
+        color: var(--accent) !important;
+        font-weight: 700;
+      }
+      .tag-primary {
+        display: inline-block;
+        background: rgba(251, 191, 36, 0.1);
+        border: 1px solid rgba(251, 191, 36, 0.2);
+        color: var(--accent);
+        font-size: 7px;
+        letter-spacing: 0.1em;
+        padding: 1px 6px;
+        border-radius: 2px;
+        margin-left: 6px;
+        vertical-align: middle;
+      }
+
+      /* Section anchor */
+      .section-anchor {
+        display: block;
+        height: 60px;
+        margin-top: -60px;
+        visibility: hidden;
+      }
+
+      /* Taxonomy table */
+      .impact-high {
+        color: var(--urgent) !important;
+        font-weight: 700;
+      }
+      .impact-medium {
+        color: var(--danger) !important;
+      }
+      .ccy {
+        color: var(--blue) !important;
+        font-size: 9px;
+      }
+
+      /* Divider */
+      hr {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 32px 0;
+      }
+
+      /* Step numbers */
+      .steps {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        margin: 12px 0 20px;
+      }
+      .step {
+        display: flex;
+        gap: 16px;
+        padding: 14px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .step:last-child {
+        border-bottom: none;
+      }
+      .step-num {
+        width: 28px;
+        height: 28px;
+        border-radius: 4px;
+        flex-shrink: 0;
+        background: rgba(251, 191, 36, 0.1);
+        border: 1px solid rgba(251, 191, 36, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 800;
+        color: var(--accent);
+      }
+      .step-content {
+        flex: 1;
+      }
+      .step-title {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        margin-bottom: 4px;
+        color: var(--text);
+      }
+      .step-desc {
+        font-size: 10px;
+        color: var(--dim);
+        line-height: 1.7;
+      }
+
+      /* Platform tag */
+      .platform {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 9px;
+        color: var(--dim);
+        letter-spacing: 0.08em;
+        margin-bottom: 6px;
+      }
+      .platform-icon {
+        font-size: 12px;
+      }
+
+      a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+
+      /* Responsive */
+      @media (max-width: 700px) {
+        .sidebar {
+          display: none;
+        }
+        .main {
+          padding: 32px 20px 60px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <!-- Sidebar -->
+      <nav class="sidebar">
+        <div class="sidebar-logo">
+          <div class="logo-icon">◎</div>
+          <div class="logo-name">FN<span>EWS</span>TEER</div>
+          <div class="logo-sub">DOCUMENTATION</div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">MCP GUIDE</div>
+          <a class="nav-item active" onclick="scrollTo('install')"
+            >Installation</a
+          >
+          <a class="nav-item" onclick="scrollTo('verify')">Verify Connection</a>
+          <a class="nav-item" onclick="scrollTo('tools')">Available Tools</a>
+          <a class="nav-item" onclick="scrollTo('prompts')">Prompt Examples</a>
+          <a class="nav-item" onclick="scrollTo('notes')">Notes</a>
+          <a class="nav-item" onclick="scrollTo('troubleshoot')"
+            >Troubleshooting</a
+          >
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">EVENT TAXONOMY</div>
+          <a class="nav-item" onclick="scrollTo('inflation')"
+            >Inflation & Prices</a
+          >
+          <a class="nav-item" onclick="scrollTo('central-bank')"
+            >Central Bank</a
+          >
+          <a class="nav-item" onclick="scrollTo('labor')">Labor Market</a>
+          <a class="nav-item" onclick="scrollTo('gdp')">GDP & Growth</a>
+          <a class="nav-item" onclick="scrollTo('consumer')"
+            >Consumer & Retail</a
+          >
+          <a class="nav-item" onclick="scrollTo('business')"
+            >Business & Industry</a
+          >
+          <a class="nav-item" onclick="scrollTo('housing')">Housing</a>
+          <a class="nav-item" onclick="scrollTo('trade')">Trade Flows</a>
+          <a class="nav-item" onclick="scrollTo('wildcards')">Wildcards</a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">LINKS</div>
+          <a
+            class="nav-item"
+            href="https://github.com/tushcmd/fnewsteer"
+            target="_blank"
+            >API GitHub ↗</a
+          >
+          <a
+            class="nav-item"
+            href="https://github.com/tushcmd/fnewsteer-ce"
+            target="_blank"
+            >Extension GitHub ↗</a
+          >
+          <a
+            class="nav-item"
+            href="https://chromewebstore.google.com/detail/nfdcdhkgoiohipbhoalpnenhincbpnlc"
+            target="_blank"
+            >Chrome Store ↗</a
+          >
+        </div>
+      </nav>
+
+      <!-- Main -->
+      <main class="main">
+        <!-- Header -->
+        <div class="hero-badge">
+          <span class="hero-badge-dot"></span>MCP SERVER · HOSTED · v1.0.0
+        </div>
+        <h1>
+          FN<span>EWS</span>TEER MCP<br /><span
+            style="
+              color: var(--dim);
+              font-size: 14px;
+              font-weight: 500;
+              letter-spacing: 0.1em;
+            "
+            >Claude Installation Guide</span
+          >
+        </h1>
+        <p class="page-desc">
+          Give Claude live awareness of high-impact economic events so you never
+          enter a trade during a news blackout window.
+        </p>
+
+        <span class="section-anchor" id="install"></span>
+        <h2><span class="num">01</span>PREREQUISITES</h2>
+        <div
+          style="
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 20px;
+          "
+        >
+          <div class="callout callout-info">
+            <span class="callout-icon">ℹ</span
+            ><strong>Claude Desktop only</strong> — MCP tools are not available
+            in the claude.ai browser interface. Download at
+            <a href="https://claude.ai/download" target="_blank"
+              >claude.ai/download</a
+            >
+          </div>
+          <div class="callout callout-safe">
+            <span class="callout-icon">✓</span>Nothing to install locally — the
+            FNEWSTEER server is fully hosted.
+          </div>
+        </div>
+
+        <h2><span class="num">02</span>INSTALLATION</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <div class="step-title">OPEN CONFIG FILE</div>
+              <div class="step-desc">
+                <div class="platform">
+                  <span class="platform-icon">🍎</span>macOS:
+                  <code
+                    >~/Library/Application
+                    Support/Claude/claude_desktop_config.json</code
+                  >
+                </div>
+                <div class="platform">
+                  <span class="platform-icon">🪟</span>Windows:
+                  <code>%APPDATA%\Claude\claude_desktop_config.json</code>
+                </div>
+                Create the file if it doesn't exist.
+              </div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <div class="step-title">ADD THE FNEWSTEER ENTRY</div>
+              <div class="step-desc">Paste the following into your config:</div>
+              <div class="code-wrap">
+                <span class="code-lang">JSON</span>
+                <button class="code-copy" onclick="copyCode(this)">COPY</button>
+                <pre>{
+  <span class="key">"mcpServers"</span>: {
+    <span class="key">"fnewsteer"</span>: {
+      <span class="key">"command"</span>: <span class="str">"npx"</span>,
+      <span class="key">"args"</span>: [<span class="str">"-y"</span>, <span class="str">"mcp-remote"</span>, <span class="str">"https://fnewsteer-mcp.onrender.com/sse"</span>]
+    }
+  }
+}</pre>
+              </div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <div class="step-title">FULLY RESTART CLAUDE DESKTOP</div>
+              <div class="step-desc">
+                Save the file then quit and relaunch Claude Desktop. A window
+                reload is not enough.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <span class="section-anchor" id="verify"></span>
+        <h2><span class="num">03</span>VERIFY THE CONNECTION</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <div class="step-title">START A NEW CONVERSATION</div>
+              <div class="step-desc">
+                Open Claude Desktop and start a fresh chat.
+              </div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <div class="step-title">CHECK THE TOOLS ICON</div>
+              <div class="step-desc">
+                Click the 🔨 tools icon in the bottom-left of the input box.
+                Confirm <code>fnewsteer</code> appears in the connected tools
+                list.
+              </div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <div class="step-title">RUN A TEST QUERY</div>
+              <div class="step-desc">
+                <div class="code-wrap" style="margin-top: 8px">
+                  <pre>Check if it's safe to trade EURUSD right now</pre>
+                </div>
+                You should get a
+                <span style="color: var(--safe)">✅ SAFE</span> or
+                <span style="color: var(--urgent)">🚫 NOT SAFE</span> response
+                with full event details.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <span class="section-anchor" id="tools"></span>
+        <h2><span class="num">04</span>AVAILABLE TOOLS</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>TOOL</th>
+              <th>WHAT IT DOES</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <code>check_safe_to_trade_now</code
+                ><span class="tag-primary">PRIMARY</span>
+              </td>
+              <td>
+                Returns SAFE / NOT SAFE for a symbol right now with full
+                blocking event details
+              </td>
+            </tr>
+            <tr>
+              <td><code>get_upcoming_events</code></td>
+              <td>Lists all high-impact events for the current week</td>
+            </tr>
+            <tr>
+              <td><code>get_blackout_zones</code></td>
+              <td>
+                Returns avoid-windows as human + machine-readable JSON — ideal
+                for backtesting configs
+              </td>
+            </tr>
+            <tr>
+              <td><code>refresh_calendar</code></td>
+              <td>Force-busts the cache if you suspect stale data</td>
+            </tr>
+            <tr>
+              <td><code>get_server_health</code></td>
+              <td>
+                Verifies the data layer is up — use first in automated pipelines
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <span class="section-anchor" id="prompts"></span>
+        <h2><span class="num">05</span>PROMPT EXAMPLES</h2>
+        <div class="prompt-grid">
+          <div class="prompt-card" onclick="copyPrompt(this)">
+            <div class="prompt-label">BASIC SAFETY CHECK</div>
+            <div class="prompt-text">Is it safe to trade EURUSD right now?</div>
+            <button class="prompt-copy">COPY</button>
+          </div>
+          <div class="prompt-card" onclick="copyPrompt(this)">
+            <div class="prompt-label">MULTI-PAIR CHECK</div>
+            <div class="prompt-text">
+              Check if any of these are safe to trade right now: EURUSD, GBPUSD,
+              USDJPY
+            </div>
+            <button class="prompt-copy">COPY</button>
+          </div>
+          <div class="prompt-card" onclick="copyPrompt(this)">
+            <div class="prompt-label">SESSION PLANNING</div>
+            <div class="prompt-text">
+              I'm about to start my trading session. What high-impact news
+              events should I be aware of this week for USD and EUR pairs?
+            </div>
+            <button class="prompt-copy">COPY</button>
+          </div>
+          <div class="prompt-card" onclick="copyPrompt(this)">
+            <div class="prompt-label">BACKTESTING JSON</div>
+            <div class="prompt-text">
+              Give me all the blackout zones for USD this week in JSON format so
+              I can paste them into my backtest config
+            </div>
+            <button class="prompt-copy">COPY</button>
+          </div>
+          <div class="prompt-card" onclick="copyPrompt(this)">
+            <div class="prompt-label">FULL WEEK BRIEFING</div>
+            <div class="prompt-text">
+              Give me a complete news risk briefing for this week. Organise it
+              by day, show all high-impact events and their blackout windows.
+            </div>
+            <button class="prompt-copy">COPY</button>
+          </div>
+          <div class="prompt-card" onclick="copyPrompt(this)">
+            <div class="prompt-label">INCLUDE MEDIUM IMPACT</div>
+            <div class="prompt-text">
+              Check AUDUSD but also include medium impact events in the
+              assessment
+            </div>
+            <button class="prompt-copy">COPY</button>
+          </div>
+          <div
+            class="prompt-card"
+            style="
+              border-color: rgba(251, 191, 36, 0.15);
+              background: rgba(251, 191, 36, 0.02);
+            "
+            onclick="copyPrompt(this)"
+          >
+            <div class="prompt-label">
+              ⚡ AGENTIC GUARD — PASTE AS SYSTEM PROMPT IN A PROJECT
+            </div>
+            <div class="prompt-text">
+              Before taking any action involving a trade entry, exit, or
+              modification, you must call check_safe_to_trade_now with the
+              relevant symbol. If NOT SAFE, halt and report which event is
+              blocking and when the window clears. Never skip this check.
+            </div>
+            <button class="prompt-copy">COPY</button>
+          </div>
+        </div>
+
+        <span class="section-anchor" id="notes"></span>
+        <h2><span class="num">06</span>NOTES</h2>
+        <div class="callout callout-warn">
+          <span class="callout-icon">⚠</span><strong>Cold Starts</strong> — The
+          server runs on Render and may sleep after inactivity. The first
+          request after a sleep can take 30–60 seconds. Subsequent requests are
+          fast.
+        </div>
+        <div class="callout callout-info">
+          <span class="callout-icon">🕐</span
+          ><strong>All Times Are UTC</strong> — All event times and blackout
+          windows are returned in UTC. Convert to your local timezone as needed.
+        </div>
+        <div class="callout callout-warn">
+          <span class="callout-icon">↺</span
+          ><strong>Re-check Before Entry</strong> — A SAFE result is a
+          point-in-time snapshot. If more than a few minutes pass between
+          checking and entering, ask Claude to check again.
+        </div>
+
+        <span class="section-anchor" id="troubleshoot"></span>
+        <h2><span class="num">07</span>TROUBLESHOOTING</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>SYMPTOM</th>
+              <th>FIX</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Tools don't appear in Claude</td>
+              <td>
+                MCP is Desktop-only. Confirm JSON is valid (no trailing commas).
+                Fully quit and relaunch.
+              </td>
+            </tr>
+            <tr>
+              <td>Connection timeout on first use</td>
+              <td>Cold start — wait 60s and ask again.</td>
+            </tr>
+            <tr>
+              <td>Stale event data</td>
+              <td>Ask Claude to run <code>refresh_calendar</code></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <hr />
+
+        <!-- TAXONOMY -->
+        <h1 style="margin-top: 8px">EVENT <span>TAXONOMY</span></h1>
+        <p class="page-desc">
+          Complete hierarchy of economic events that move currency markets —
+          organised by theme, not alphabetically.
+        </p>
+
+        <span class="section-anchor" id="inflation"></span>
+        <h2>
+          <span class="num">①</span>INFLATION & PRICES
+          <span style="color: var(--urgent); font-size: 10px; font-weight: 500"
+            >THE #1 MARKET MOVER</span
+          >
+        </h2>
+        <table>
+          <thead>
+            <tr>
+              <th>CODE</th>
+              <th>FULL NAME</th>
+              <th>CURRENCY</th>
+              <th>IMPACT</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>CPI</td>
+              <td>Consumer Price Index (Headline & Core)</td>
+              <td class="ccy">All Majors</td>
+              <td class="impact-high">RED / HIGH</td>
+            </tr>
+            <tr>
+              <td>PPI</td>
+              <td>Producer Price Index</td>
+              <td class="ccy">USD, EUR, GBP</td>
+              <td class="impact-high">HIGH</td>
+            </tr>
+            <tr>
+              <td>PCE</td>
+              <td>Personal Consumption Expenditures</td>
+              <td class="ccy">USD</td>
+              <td class="impact-high">HIGH · Fed preferred</td>
+            </tr>
+            <tr>
+              <td>HICP</td>
+              <td>Harmonized Index of Consumer Prices</td>
+              <td class="ccy">EUR</td>
+              <td class="impact-high">HIGH</td>
+            </tr>
+            <tr>
+              <td>RPI</td>
+              <td>Retail Price Index</td>
+              <td class="ccy">GBP</td>
+              <td class="impact-high">HIGH</td>
+            </tr>
+            <tr>
+              <td>CPI Flash</td>
+              <td>Preliminary CPI Estimate</td>
+              <td class="ccy">EUR, DEM</td>
+              <td class="impact-high">HIGH</td>
+            </tr>
+            <tr>
+              <td>Import/Export Prices</td>
+              <td>Trade Inflation Metrics</td>
+              <td class="ccy">USD, JPY</td>
+              <td class="impact-medium">MEDIUM</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <span class="section-anchor" id="central-bank"></span>
+        <h2><span class="num">②</span>CENTRAL BANK & MONETARY POLICY</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>CODE</th>
+              <th>FULL NAME</th>
+              <th>CURRENCY</th>
+              <th>IMPACT</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>FOMC</td>
+              <td>Federal Open Market Committee Meeting</td>
+              <td class="ccy">USD</td>
+              <td class="impact-high">RED / HIGH</td>
+            </tr>
+            <tr>
+              <td>Interest Rate Decision</td>
+              <td>Central Bank Rate Announcement</td>
+              <td class="ccy">ALL</td>
+              <td class="impact-high">RED / HIGH</td>
+            </tr>
+            <tr>
+              <td>Monetary Policy Statement</td>
+              <td>Policy Language Release</td>
+              <td class="ccy">ALL</td>
+              <td class="impact-high">HIGH</td>
+            </tr>
+            <tr>
+              <td>Meeting Minutes</td>
+              <td>Detailed Record of Previous Meeting</td>
+              <td class="ccy">USD, EUR, GBP, AUD, NZD, CAD</td>
+              <td class="impact-medium">MEDIUM–HIGH</td>
+            </tr>
+            <tr>
+              <td>Press Conference</td>
+              <td>Governor/Chair Speeches</td>
+              <td class="ccy">ALL</td>
+              <td class="impact-high">RED / HIGH</td>
+            </tr>
+            <tr>
+              <td>Monetary Policy Report</td>
+              <td>Quarterly Inflation/Outlook Report</td>
+              <td class="ccy">GBP, CAD, NOK</td>
+              <td class="impact-high">HIGH</td>
+            </tr>
+            <tr>
+              <td>Financial Stability Report</td>
+              <td>Systemic Risk Assessment</td>
+              <td class="ccy">ALL</td>
+              <td class="impact-medium">MEDIUM</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <span class="section-anchor" id="labor"></span>
+        <h2><span class="num">③</span>LABOR MARKET & EMPLOYMENT</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>CODE</th>
+              <th>FULL NAME</th>
+              <th>CURRENCY</th>
+              <th>IMPACT</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>NFP</td>
+              <td>Non-Farm Payrolls</td>
+              <td class="ccy">USD</td>
+              <td class="impact-high">RED / HIGH</td>
+            </tr>
+            <tr>
+              <td>Unemployment Rate</td>
+              <td>Jobless Rate</td>
+              <td class="ccy">ALL</td>
+              <td class="impact-high">HIGH</td>
+            </tr>
+            <tr>
+              <td>Average Earnings</td>
+              <td>Wage Growth</td>
+              <td class="ccy">GBP, USD</td>
+              <td class="impact-high">HIGH</td>
+            </tr>
+            <tr>
+              <td>JOLTS</td>
+              <td>Job Openings and Labor Turnover Survey</td>
+              <td class="ccy">USD</td>
+              <td class="impact-high">HIGH</td>
+            </tr>
+            <tr>
+              <td>ADP</td>
+              <td>ADP Employment Change</td>
+              <td class="ccy">USD, CAD</td>
+              <td class="impact-medium">MEDIUM–HIGH</td>
+            </tr>
+            <tr>
+              <td>Employment Change</td>
+              <td>Net Job Creation</td>
+              <td class="ccy">CAD, AUD, NZD</td>
+              <td class="impact-high">HIGH</td>
+            </tr>
+            <tr>
+              <td>Initial Claims</td>
+              <td>Weekly Unemployment Insurance</td>
+              <td class="ccy">USD</td>
+              <td class="impact-medium">MEDIUM</td>
+            </tr>
+            <tr>
+              <td>Continuing Claims</td>
+              <td>Ongoing Unemployment Beneficiaries</td>
+              <td class="ccy">USD</td>
+              <td class="impact-medium">MEDIUM</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <span class="section-anchor" id="gdp"></span>
+        <h2><span class="num">④</span>GDP & GROWTH</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>CODE</th>
+              <th>FULL NAME</th>
+              <th>CURRENCY</th>
+              <th>IMPACT</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>GDP</td>
+              <td>Gross Domestic Product (Q/Q, Y/Y)</td>
+              <td class="ccy">ALL</td>
+              <td class="impact-high">RED / HIGH</td>
+            </tr>
+            <tr>
+              <td>GDP Flash</td>
+              <td>Advance/Preliminary Estimate</td>
+              <td class="ccy">EUR, GBP</td>
+              <td class="impact-high">HIGH</td>
+            </tr>
+            <tr>
+              <td>GDP Revision</td>
+              <td>Final/Fully Detailed Release</td>
+              <td class="ccy">ALL</td>
+              <td class="impact-medium">MEDIUM</td>
+            </tr>
+            <tr>
+              <td>GDI</td>
+              <td>Gross Domestic Income</td>
+              <td class="ccy">USD</td>
+              <td class="impact-medium">MEDIUM</td>
+            </tr>
+            <tr>
+              <td>Leading Index</td>
+              <td>Composite Forward Indicator</td>
+              <td class="ccy">JPY, USD</td>
+              <td class="impact-medium">MEDIUM</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <span class="section-anchor" id="consumer"></span>
+        <h2><span class="num">⑤</span>CONSUMER & RETAIL</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>CODE</th>
+              <th>FULL NAME</th>
+              <th>CURRENCY</th>
+              <th>IMPACT</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Retail Sales</td>
+              <td>Consumer Spending</td>
+              <td class="ccy">ALL</td>
+              <td class="impact-high">RED / HIGH</td>
+            </tr>
+            <tr>
+              <td>Retail Sales ex Auto</td>
+              <td>Core Consumer Spending</td>
+              <td class="ccy">USD</td>
+              <td class="impact-high">HIGH</td>
+            </tr>
+            <tr>
+              <td>Consumer Confidence</td>
+              <td>Conference Board, Michigan Sentiment</td>
+              <td class="ccy">USD, EUR</td>
+              <td class="impact-medium">MEDIUM–HIGH</td>
+            </tr>
+            <tr>
+              <td>GfK</td>
+              <td>German Consumer Climate</td>
+              <td class="ccy">EUR</td>
+              <td class="impact-medium">MEDIUM</td>
+            </tr>
+            <tr>
+              <td>Household Spending</td>
+              <td>Family Expenditure</td>
+              <td class="ccy">JPY</td>
+              <td class="impact-medium">MEDIUM</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <span class="section-anchor" id="business"></span>
+        <h2><span class="num">⑥</span>BUSINESS & INDUSTRY</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>CODE</th>
+              <th>FULL NAME</th>
+              <th>CURRENCY</th>
+              <th>IMPACT</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>PMI</td>
+              <td>Purchasing Managers' Index (Mfg/Services)</td>
+              <td class="ccy">ALL</td>
+              <td class="impact-high">HIGH</td>
+            </tr>
+            <tr>
+              <td>ISM</td>
+              <td>Institute for Supply Management</td>
+              <td class="ccy">USD</td>
+              <td class="impact-high">HIGH</td>
+            </tr>
+            <tr>
+              <td>Industrial Production</td>
+              <td>Factory Output</td>
+              <td class="ccy">ALL</td>
+              <td class="impact-medium">MEDIUM–HIGH</td>
+            </tr>
+            <tr>
+              <td>Durable Goods Orders</td>
+              <td>Long-Lasting Manufactured Goods</td>
+              <td class="ccy">USD</td>
+              <td class="impact-medium">MEDIUM–HIGH</td>
+            </tr>
+            <tr>
+              <td>Business Confidence</td>
+              <td>IFO, ZEW, NAB Corporate Sentiment</td>
+              <td class="ccy">EUR, AUD</td>
+              <td class="impact-medium">MEDIUM–HIGH</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <span class="section-anchor" id="housing"></span>
+        <h2><span class="num">⑦</span>HOUSING & CONSTRUCTION</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>CODE</th>
+              <th>FULL NAME</th>
+              <th>CURRENCY</th>
+              <th>IMPACT</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Building Permits</td>
+              <td>Future Construction Authorizations</td>
+              <td class="ccy">USD, CAD</td>
+              <td class="impact-medium">MEDIUM</td>
+            </tr>
+            <tr>
+              <td>Housing Starts</td>
+              <td>New Residential Construction</td>
+              <td class="ccy">USD, CAD</td>
+              <td class="impact-medium">MEDIUM</td>
+            </tr>
+            <tr>
+              <td>Existing Home Sales</td>
+              <td>Resale Market Activity</td>
+              <td class="ccy">USD</td>
+              <td class="impact-medium">MEDIUM</td>
+            </tr>
+            <tr>
+              <td>HPI</td>
+              <td>House Price Index</td>
+              <td class="ccy">USD, GBP, CAD</td>
+              <td class="impact-medium">MEDIUM</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <span class="section-anchor" id="trade"></span>
+        <h2><span class="num">⑧</span>TRADE & CROSS-BORDER FLOWS</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>CODE</th>
+              <th>FULL NAME</th>
+              <th>CURRENCY</th>
+              <th>IMPACT</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Trade Balance</td>
+              <td>Exports minus Imports</td>
+              <td class="ccy">ALL</td>
+              <td class="impact-medium">MEDIUM</td>
+            </tr>
+            <tr>
+              <td>Current Account</td>
+              <td>Broader Trade + Income Transfers</td>
+              <td class="ccy">ALL</td>
+              <td class="impact-medium">MEDIUM</td>
+            </tr>
+            <tr>
+              <td>Terms of Trade</td>
+              <td>Export/Import Price Ratio</td>
+              <td class="ccy">AUD, NZD, CAD</td>
+              <td class="impact-medium">MEDIUM</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <span class="section-anchor" id="wildcards"></span>
+        <h2>
+          <span class="num">⑨</span>WILDCARDS
+          <span style="color: var(--urgent); font-size: 10px; font-weight: 500"
+            >SPECIAL CATEGORIES</span
+          >
+        </h2>
+        <div class="callout callout-warn">
+          <span class="callout-icon">🚨</span
+          ><strong>Red Folder Events</strong> — Multiple prop firms explicitly
+          state: traders are not permitted to trade any pair during Red Folder
+          events. FNEWSTEER flags these separately from standard high-impact
+          events.
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>TYPE</th>
+              <th>DESCRIPTION</th>
+              <th>IMPACT</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Red Folder Events</td>
+              <td>Unscheduled high-impact announcements</td>
+              <td class="impact-high">RED / HIGH</td>
+            </tr>
+            <tr>
+              <td>Speeches (Red Label)</td>
+              <td>Central Bank / Government officials</td>
+              <td class="impact-high">RED / HIGH</td>
+            </tr>
+            <tr>
+              <td>Elections</td>
+              <td>National / Referendum votes</td>
+              <td style="color: #c084fc !important; font-weight: 700">
+                EXTREME
+              </td>
+            </tr>
+            <tr>
+              <td>Geopolitical Conflict</td>
+              <td>War, sanctions, trade disputes</td>
+              <td style="color: #c084fc !important; font-weight: 700">
+                BLACK SWAN
+              </td>
+            </tr>
+            <tr>
+              <td>All-Day Red Events</td>
+              <td>Full trading day restriction</td>
+              <td class="impact-high">TOTAL AVOIDANCE</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <hr />
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+          "
+        >
+          <div
+            style="font-size: 9px; color: var(--muted); letter-spacing: 0.08em"
+          >
+            FNEWSTEER v1.0.0 · Data: ForexFactory · © 2026 FNS
+          </div>
+          <div style="display: flex; gap: 16px">
+            <a
+              href="https://github.com/tushcmd/fnewsteer/issues"
+              target="_blank"
+              style="font-size: 9px; letter-spacing: 0.1em; color: var(--dim)"
+              >SUPPORT ↗</a
+            >
+            <a
+              href="https://x.com/0xtush"
+              target="_blank"
+              style="font-size: 9px; letter-spacing: 0.1em; color: var(--dim)"
+              >𝕏 @0xtush ↗</a
+            >
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      function scrollTo(id) {
+        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+        document
+          .querySelectorAll('.nav-item')
+          .forEach((i) => i.classList.remove('active'));
+        event.target.classList.add('active');
+      }
+
+      function copyCode(btn) {
+        const pre = btn.closest('.code-wrap').querySelector('pre');
+        navigator.clipboard.writeText(pre.innerText);
+        btn.textContent = 'COPIED';
+        setTimeout(() => (btn.textContent = 'COPY'), 1500);
+      }
+
+      function copyPrompt(card) {
+        const text = card.querySelector('.prompt-text').textContent;
+        navigator.clipboard.writeText(text);
+        const btn = card.querySelector('.prompt-copy');
+        if (btn) {
+          btn.textContent = 'COPIED';
+          setTimeout(() => (btn.textContent = 'COPY'), 1500);
+        }
+      }
+    </script>
+  </body>
+</html>
