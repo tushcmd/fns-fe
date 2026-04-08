@@ -1,745 +1,492 @@
-<style>
-  *,
-  *::before,
-  *::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-  :root {
-    --bg: #ffffff;
-    --surface: #f8f7f4;
-    --surface2: #f1f0ec;
-    --border: rgba(0, 0, 0, 0.08);
-    --border2: rgba(0, 0, 0, 0.14);
-    --text: #1a1a1a;
-    --muted: #666;
-    --dim: #999;
-    --safe: #16a34a;
-    --safe-bg: #f0fdf4;
-    --safe-border: #bbf7d0;
-    --danger: #b45309;
-    --danger-bg: #fffbeb;
-    --danger-border: #fde68a;
-    --urgent: #dc2626;
-    --accent: #b45309;
-    --tag-get-bg: #dbeafe;
-    --tag-get: rgb(29, 78, 216);
-    --tag-post-bg: #dcfce7;
-    --tag-post: rgb(21, 128, 61);
-    --mono: 'JetBrains Mono', ui-monospace, monospace;
-    --radius: 8px;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #0f0f10;
-      --surface: #18181b;
-      --surface2: #222228;
-      --border: rgba(255, 255, 255, 0.08);
-      --border2: rgba(255, 255, 255, 0.14);
-      --text: #e8e8ed;
-      --muted: #999;
-      --dim: #666;
-      --safe: #22c55e;
-      --safe-bg: rgba(34, 197, 94, 0.08);
-      --safe-border: rgba(34, 197, 94, 0.2);
-      --danger: #f59e0b;
-      --danger-bg: rgba(245, 158, 11, 0.08);
-      --danger-border: rgba(245, 158, 11, 0.2);
-      --urgent: #ef4444;
-      --accent: #fbbf24;
-      --tag-get-bg: rgba(59, 130, 246, 0.15);
-      --tag-get: #93c5fd;
-      --tag-post-bg: rgba(34, 197, 94, 0.15);
-      --tag-post: #86efac;
-    }
-  }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: ui-sans-serif, system-ui, sans-serif;
-    font-size: 14px;
-    line-height: 1.6;
-  }
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FNEWSTEER API — Reference v1.0.0</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../shared.css" />
+    <style>
+      /* ── Page hero ── */
+      .page-hero {
+        margin-bottom: 40px;
+        padding-bottom: 28px;
+        border-bottom: 1px solid var(--border);
+      }
+      .page-hero-title {
+        margin-bottom: 6px;
+      }
+      .page-hero-desc {
+        font-size: 12px;
+        color: var(--dim);
+        line-height: 1.7;
+        max-width: 520px;
+        margin-bottom: 16px;
+      }
+      .hero-meta {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .meta-chip {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 10px;
+        color: var(--dim);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 4px 10px;
+      }
+      .chip-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+      }
+      .chip-dot.safe {
+        background: var(--safe);
+      }
+      .chip-dot.amber {
+        background: var(--danger);
+      }
 
-  .theme-toggle {
-    position: fixed;
-    top: 16px;
-    right: 16px;
-    z-index: 200;
-    background: var(--surface);
-    border: 0.5px solid var(--border2);
-    border-radius: 20px;
-    padding: 6px 14px;
-    cursor: pointer;
-    font-size: 12px;
-    color: var(--muted);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: background 0.2s;
-  }
-  .theme-toggle:hover {
-    background: var(--surface2);
-  }
+      /* ── Endpoint card ── */
+      .endpoint-card {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--bg);
+        margin-bottom: 10px;
+        overflow: hidden;
+      }
+      .endpoint-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        cursor: pointer;
+        background: var(--surface);
+        transition: background 0.15s;
+        user-select: none;
+      }
+      .endpoint-header:hover {
+        background: var(--surface2);
+      }
+      .endpoint-path {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--text);
+        flex: 1;
+      }
+      .endpoint-summary {
+        font-size: 11px;
+        color: var(--dim);
+      }
+      .endpoint-chevron {
+        font-size: 10px;
+        color: var(--faint);
+        transition: transform 0.2s;
+        margin-left: auto;
+      }
+      .endpoint-card.open .endpoint-chevron {
+        transform: rotate(180deg);
+      }
+      .endpoint-body {
+        display: none;
+        padding: 18px;
+        border-top: 1px solid var(--border);
+      }
+      .endpoint-card.open .endpoint-body {
+        display: block;
+      }
+      .endpoint-desc {
+        font-size: 12px;
+        color: var(--dim);
+        line-height: 1.7;
+        margin-bottom: 16px;
+      }
 
-  .layout {
-    display: flex;
-    min-height: 100vh;
-  }
-  .sidebar {
-    width: 220px;
-    flex-shrink: 0;
-    background: var(--surface);
-    border-right: 0.5px solid var(--border);
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    overflow-y: auto;
-    padding: 20px 0;
-  }
-  .sidebar-logo {
-    padding: 0 16px 16px;
-    border-bottom: 0.5px solid var(--border);
-    margin-bottom: 12px;
-  }
-  .logo-wordmark {
-    font-size: 14px;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    color: var(--text);
-  }
-  .logo-wordmark em {
-    color: var(--accent);
-    font-style: normal;
-  }
-  .logo-sub {
-    font-size: 11px;
-    color: var(--dim);
-    margin-top: 2px;
-  }
-  .nav-group {
-    padding: 0 16px;
-    margin-bottom: 16px;
-  }
-  .nav-group-title {
-    font-size: 10px;
-    letter-spacing: 0.12em;
-    color: var(--dim);
-    text-transform: uppercase;
-    margin-bottom: 6px;
-    padding-bottom: 5px;
-    border-bottom: 0.5px solid var(--border);
-  }
-  .nav-link {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 5px 0;
-    font-size: 12px;
-    color: var(--muted);
-    cursor: pointer;
-    text-decoration: none;
-    border: none;
-    background: none;
-    width: 100%;
-    text-align: left;
-    transition: color 0.15s;
-  }
-  .nav-link:hover,
-  .nav-link.active {
-    color: var(--accent);
-  }
-  .method-badge {
-    font-size: 9px;
-    font-weight: 600;
-    padding: 1px 5px;
-    border-radius: 3px;
-    font-family: var(--mono);
-  }
-  .get-badge {
-    background: var(--tag-get-bg);
-    color: var(--tag-get);
-  }
-  .post-badge {
-    background: var(--tag-post-bg);
-    color: var(--tag-post);
-  }
+      /* ── Params ── */
+      .params-title {
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--dim);
+        margin-bottom: 8px;
+      }
+      .param-row {
+        display: grid;
+        grid-template-columns: 170px 80px 1fr;
+        gap: 12px;
+        padding: 8px 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 11px;
+        align-items: start;
+      }
+      .param-row:last-child {
+        border-bottom: none;
+      }
+      .param-name {
+        font-family: var(--font-mono);
+        color: var(--accent);
+        font-size: 10px;
+      }
+      .param-req {
+        font-size: 9px;
+        color: var(--urgent);
+        font-weight: 700;
+      }
+      .param-opt {
+        font-size: 9px;
+        color: var(--dim);
+      }
+      .param-type {
+        font-size: 9px;
+        background: var(--surface2);
+        padding: 2px 6px;
+        border-radius: 2px;
+        font-family: var(--font-mono);
+        color: var(--dim);
+      }
+      .param-desc {
+        color: var(--dim);
+        line-height: 1.5;
+        font-size: 11px;
+      }
+      .param-default {
+        font-family: var(--font-mono);
+        font-size: 9px;
+        color: var(--faint);
+      }
 
-  .main {
-    flex: 1;
-    padding: 40px 48px 80px;
-    max-width: 800px;
-  }
+      /* ── Try it ── */
+      .try-it {
+        margin-top: 16px;
+        padding: 14px;
+        background: var(--surface);
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+      }
+      .try-title {
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--dim);
+        margin-bottom: 12px;
+      }
+      .try-row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 10px;
+        align-items: center;
+      }
+      .try-label {
+        font-size: 11px;
+        color: var(--dim);
+        min-width: 110px;
+      }
+      .try-input {
+        flex: 1;
+        background: var(--bg);
+        border: 1px solid var(--border2);
+        border-radius: var(--radius);
+        color: var(--text);
+        font-family: var(--font-mono);
+        font-size: 11px;
+        padding: 7px 10px;
+        outline: none;
+        transition: border-color 0.15s;
+      }
+      .try-input:focus {
+        border-color: var(--accent);
+      }
+      .try-btn {
+        background: rgba(251, 191, 36, 0.1);
+        border: 1px solid rgba(251, 191, 36, 0.3);
+        color: var(--accent);
+        border-radius: var(--radius);
+        padding: 7px 18px;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+      .try-btn:hover {
+        background: rgba(251, 191, 36, 0.18);
+      }
+      .try-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+      .try-result {
+        margin-top: 10px;
+        display: none;
+      }
+      .result-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: var(--radius);
+        margin-bottom: 8px;
+      }
+      .result-ok {
+        background: rgba(34, 197, 94, 0.08);
+        color: var(--safe);
+        border: 1px solid rgba(34, 197, 94, 0.2);
+      }
+      .result-err {
+        background: rgba(245, 158, 11, 0.08);
+        color: var(--danger);
+        border: 1px solid rgba(245, 158, 11, 0.2);
+      }
+      .result-pre {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 12px;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        line-height: 1.7;
+        color: var(--dim);
+        overflow-x: auto;
+        max-height: 240px;
+        overflow-y: auto;
+      }
 
-  .hero {
-    margin-bottom: 40px;
-    padding-bottom: 28px;
-    border-bottom: 0.5px solid var(--border);
-  }
-  .hero-title {
-    font-size: 24px;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    margin-bottom: 6px;
-  }
-  .hero-title em {
-    color: var(--accent);
-    font-style: normal;
-  }
-  .hero-desc {
-    font-size: 13px;
-    color: var(--muted);
-    line-height: 1.7;
-    max-width: 520px;
-    margin-bottom: 16px;
-  }
-  .hero-meta {
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
-  }
-  .meta-chip {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 11px;
-    color: var(--muted);
-    background: var(--surface);
-    border: 0.5px solid var(--border);
-    border-radius: 20px;
-    padding: 4px 10px;
-  }
-  .meta-chip-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--safe);
-  }
-  .meta-chip-dot.amber {
-    background: var(--danger);
-  }
+      /* ── Schema ── */
+      .schema-block {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 12px 16px;
+        margin-bottom: 20px;
+      }
+      .schema-row {
+        display: grid;
+        grid-template-columns: 170px 90px 1fr;
+        gap: 12px;
+        padding: 7px 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 11px;
+      }
+      .schema-row:last-child {
+        border-bottom: none;
+      }
+      .schema-name {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--text);
+      }
+      .schema-type {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--dim);
+      }
+      .schema-desc {
+        color: var(--dim);
+      }
 
-  .section {
-    margin-bottom: 40px;
-  }
-  .section-title {
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--dim);
-    margin-bottom: 16px;
-    padding-bottom: 8px;
-    border-bottom: 0.5px solid var(--border);
-  }
+      .schema-title {
+        font-size: 11px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: var(--text);
+        letter-spacing: 0.06em;
+      }
 
-  .endpoint-card {
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--bg);
-    margin-bottom: 12px;
-    overflow: hidden;
-  }
-  .endpoint-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    cursor: pointer;
-    background: var(--surface);
-    transition: background 0.15s;
-    user-select: none;
-  }
-  .endpoint-header:hover {
-    background: var(--surface2);
-  }
-  .endpoint-method {
-    font-size: 11px;
-    font-weight: 600;
-    padding: 3px 8px;
-    border-radius: 4px;
-    font-family: var(--mono);
-    letter-spacing: 0.03em;
-  }
-  .endpoint-path {
-    font-family: var(--mono);
-    font-size: 13px;
-    color: var(--text);
-    flex: 1;
-  }
-  .endpoint-summary {
-    font-size: 12px;
-    color: var(--muted);
-  }
-  .endpoint-chevron {
-    font-size: 11px;
-    color: var(--dim);
-    transition: transform 0.2s;
-    margin-left: auto;
-  }
-  .endpoint-card.open .endpoint-chevron {
-    transform: rotate(180deg);
-  }
-
-  .endpoint-body {
-    display: none;
-    padding: 16px;
-    border-top: 0.5px solid var(--border);
-  }
-  .endpoint-card.open .endpoint-body {
-    display: block;
-  }
-
-  .endpoint-desc {
-    font-size: 13px;
-    color: var(--muted);
-    line-height: 1.7;
-    margin-bottom: 16px;
-  }
-
-  .params-title {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--dim);
-    margin-bottom: 8px;
-  }
-  .param-row {
-    display: grid;
-    grid-template-columns: 160px 80px 1fr;
-    gap: 12px;
-    padding: 8px 0;
-    border-bottom: 0.5px solid var(--border);
-    font-size: 12px;
-    align-items: start;
-  }
-  .param-row:last-child {
-    border-bottom: none;
-  }
-  .param-name {
-    font-family: var(--mono);
-    color: var(--accent);
-    font-size: 11px;
-  }
-  .param-required {
-    font-size: 10px;
-    color: var(--urgent);
-    font-weight: 600;
-  }
-  .param-optional {
-    font-size: 10px;
-    color: var(--dim);
-  }
-  .param-type {
-    font-size: 10px;
-    background: var(--surface2);
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-family: var(--mono);
-    color: var(--muted);
-  }
-  .param-desc {
-    color: var(--muted);
-    line-height: 1.5;
-  }
-  .param-default {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--dim);
-  }
-
-  .code-wrap {
-    position: relative;
-    margin: 12px 0;
-  }
-  .code-label {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 9px;
-    letter-spacing: 0.12em;
-    color: var(--dim);
-  }
-  .copy-btn {
-    position: absolute;
-    top: 8px;
-    right: 44px;
-    background: var(--surface2);
-    border: 0.5px solid var(--border);
-    color: var(--muted);
-    border-radius: 4px;
-    padding: 2px 8px;
-    font-size: 10px;
-    cursor: pointer;
-    font-family: ui-sans-serif, system-ui, sans-serif;
-  }
-  .copy-btn:hover {
-    color: var(--text);
-  }
-  pre {
-    background: var(--surface);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius);
-    padding: 14px 16px;
-    font-family: var(--mono);
-    font-size: 11px;
-    line-height: 1.8;
-    color: var(--muted);
-    overflow-x: auto;
-    white-space: pre;
-  }
-  .kw {
-    color: var(--accent);
-  }
-  .str {
-    color: var(--safe);
-  }
-  .key {
-    color: #60a5fa;
-  }
-  .cmt {
-    color: var(--dim);
-  }
-  .val {
-    color: #a78bfa;
-  }
-
-  .response-schema {
-    margin-top: 16px;
-  }
-  .schema-field {
-    display: grid;
-    grid-template-columns: 160px 80px 1fr;
-    gap: 12px;
-    padding: 7px 0;
-    border-bottom: 0.5px solid var(--border);
-    font-size: 12px;
-  }
-  .schema-field:last-child {
-    border-bottom: none;
-  }
-  .field-name {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--text);
-  }
-  .field-type {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--muted);
-  }
-  .field-desc {
-    color: var(--muted);
-  }
-
-  .try-it {
-    margin-top: 16px;
-    padding: 14px;
-    background: var(--surface);
-    border-radius: var(--radius);
-    border: 0.5px solid var(--border);
-  }
-  .try-title {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--dim);
-    margin-bottom: 12px;
-  }
-  .try-row {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 10px;
-    align-items: center;
-  }
-  .try-label {
-    font-size: 12px;
-    color: var(--muted);
-    min-width: 100px;
-  }
-  .try-input {
-    flex: 1;
-    background: var(--bg);
-    border: 0.5px solid var(--border2);
-    border-radius: 5px;
-    color: var(--text);
-    font-family: var(--mono);
-    font-size: 12px;
-    padding: 7px 10px;
-    outline: none;
-  }
-  .try-input:focus {
-    border-color: var(--accent);
-  }
-  .try-btn {
-    background: var(--accent);
-    border: none;
-    color: #fff;
-    border-radius: 5px;
-    padding: 7px 18px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-  }
-  .try-btn:hover {
-    opacity: 0.9;
-  }
-  .try-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  .try-result {
-    margin-top: 10px;
-    display: none;
-  }
-  .result-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 11px;
-    font-weight: 600;
-    padding: 4px 10px;
-    border-radius: 4px;
-    margin-bottom: 8px;
-  }
-  .result-ok {
-    background: var(--safe-bg);
-    color: var(--safe);
-    border: 0.5px solid var(--safe-border);
-  }
-  .result-err {
-    background: var(--danger-bg);
-    color: var(--danger);
-    border: 0.5px solid var(--danger-border);
-  }
-  .result-pre {
-    background: var(--bg);
-    border: 0.5px solid var(--border);
-    border-radius: 5px;
-    padding: 12px;
-    font-family: var(--mono);
-    font-size: 11px;
-    line-height: 1.7;
-    color: var(--muted);
-    overflow-x: auto;
-    max-height: 240px;
-    overflow-y: auto;
-  }
-
-  .callout {
-    padding: 10px 14px;
-    border-radius: var(--radius);
-    font-size: 12px;
-    line-height: 1.6;
-    margin: 10px 0;
-  }
-  .callout-warn {
-    background: var(--danger-bg);
-    border: 0.5px solid var(--danger-border);
-    color: var(--danger);
-  }
-  .callout-info {
-    background: #eff6ff;
-    border: 0.5px solid #bfdbfe;
-    color: #1d4ed8;
-  }
-  @media (prefers-color-scheme: dark) {
-    .callout-info {
-      background: rgba(59, 130, 246, 0.08);
-      border-color: rgba(59, 130, 246, 0.2);
-      color: #93c5fd;
-    }
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12px;
-    margin: 10px 0;
-  }
-  th {
-    background: var(--surface);
-    color: var(--dim);
-    font-weight: 600;
-    font-size: 11px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    padding: 8px 12px;
-    text-align: left;
-    border-bottom: 0.5px solid var(--border);
-    border-top: 0.5px solid var(--border);
-  }
-  td {
-    padding: 8px 12px;
-    border-bottom: 0.5px solid var(--border);
-    color: var(--muted);
-    vertical-align: top;
-  }
-  td:first-child {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--text);
-  }
-  tr:hover td {
-    background: var(--surface);
-  }
-
-  .schema-toggle {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 11px;
-    color: var(--accent);
-    cursor: pointer;
-    background: none;
-    border: none;
-    padding: 0;
-    margin-top: 8px;
-  }
-
-  .section-anchor {
-    display: block;
-    height: 64px;
-    margin-top: -64px;
-    visibility: hidden;
-  }
-</style>
-
-<button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">
-  <span id="theme-icon">☀</span> Light mode
-</button>
-
-<div class="layout">
-  <nav class="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-wordmark">FN<em>EWS</em>TEER</div>
-      <div class="logo-sub">API Reference v1.0.0</div>
-    </div>
-    <div class="nav-group">
-      <div class="nav-group-title">Overview</div>
-      <a class="nav-link" onclick="goTo('overview')">Introduction</a>
-      <a class="nav-link" onclick="goTo('auth')">Authentication</a>
-      <a class="nav-link" onclick="goTo('windows')">Blackout windows</a>
-      <a class="nav-link" onclick="goTo('integration')">Bot integration</a>
-    </div>
-    <div class="nav-group">
-      <div class="nav-group-title">Endpoints</div>
-      <a class="nav-link" onclick="goTo('ep-health')"
-        ><span class="method-badge get-badge">GET</span>/health</a
-      >
-      <a class="nav-link" onclick="goTo('ep-check')"
-        ><span class="method-badge get-badge">GET</span>/v1/news/check</a
-      >
-      <a class="nav-link" onclick="goTo('ep-upcoming')"
-        ><span class="method-badge get-badge">GET</span>/v1/news/upcoming</a
-      >
-      <a class="nav-link" onclick="goTo('ep-blackout')"
-        ><span class="method-badge get-badge">GET</span
-        >/v1/news/blackout-zones</a
-      >
-      <a class="nav-link" onclick="goTo('ep-refresh')"
-        ><span class="method-badge post-badge">POST</span
-        >/admin/refresh-cache</a
-      >
-    </div>
-    <div class="nav-group">
-      <div class="nav-group-title">Schemas</div>
-      <a class="nav-link" onclick="goTo('schema-check')">CheckResponse</a>
-      <a class="nav-link" onclick="goTo('schema-upcoming')"
-        >UpcomingNewsResponse</a
-      >
-      <a class="nav-link" onclick="goTo('schema-blackout')"
-        >BlackoutZonesResponse</a
-      >
-    </div>
-  </nav>
-
-  <main class="main">
-    <span class="section-anchor" id="overview"></span>
-    <div class="hero">
-      <div class="hero-title">FN<em>EWS</em>TEER API</div>
-      <div class="hero-desc">
-        Fundamental Analysis (News) Steer — a loss-prevention API for price
-        action traders. Know when <em>not</em> to trade so news events don't
-        blindside your technically sound setups.
-      </div>
-      <div class="hero-meta">
-        <div class="meta-chip">
-          <span class="meta-chip-dot"></span>Hosted · fnewsteer-api.onrender.com
-        </div>
-        <div class="meta-chip">
-          <span class="meta-chip-dot amber"></span>Cold starts ~30–60s on first
-          request
-        </div>
-        <div class="meta-chip">OpenAPI 3.1.0</div>
-      </div>
-    </div>
-
-    <span class="section-anchor" id="auth"></span>
-    <div class="section">
-      <div class="section-title">Authentication</div>
-      <p style="font-size: 13px; color: var(--muted); margin-bottom: 12px">
-        All <code>/v1/</code> and <code>/admin/</code> endpoints require an API
-        key in the request header. The <code>/health</code> endpoint is public.
-      </p>
-      <div class="code-wrap">
-        <span class="code-label">HEADER</span>
-        <pre><span class="key">X-API-Key</span>: your-secret-api-key</pre>
-      </div>
-      <div class="callout callout-info">
-        Public hosted key:
-        <code
-          >f1e922df0a7d52af4ff2bfc3c4eb1da01e5f8ea4779e28acb3200ced29aaf5a5</code
+      /* ── Blackout windows table ── */
+      .windows-table td:last-child {
+        color: var(--accent);
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Top Nav -->
+    <nav class="top-nav">
+      <a href="/" class="nav-logo">
+        <span class="nav-logo-icon">◎</span>
+        <span class="nav-logo-name">FN<em>EWS</em>TEER</span>
+      </a>
+      <div class="nav-links">
+        <a href="/">HOME</a>
+        <a href="." class="active">API DOCS</a>
+        <a href="../mcp/">MCP</a>
+        <a href="../event-taxonomy/">TAXONOMY</a>
+        <a href="https://github.com/tushcmd/fnewsteer" target="_blank"
+          >GITHUB</a
         >
       </div>
-    </div>
+      <a
+        href="https://chromewebstore.google.com/detail/nfdcdhkgoiohipbhoalpnenhincbpnlc"
+        target="_blank"
+        class="nav-cta"
+        >ADD TO CHROME</a
+      >
+    </nav>
 
-    <span class="section-anchor" id="windows"></span>
-    <div class="section">
-      <div class="section-title">Smart blackout windows</div>
-      <table>
-        <thead>
-          <tr>
-            <th>Event type</th>
-            <th>Window</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>FOMC, Federal Funds Rate, Interest Rate Decision</td>
-            <td>±60 min</td>
-          </tr>
-          <tr>
-            <td>Non-Farm Payrolls (NFP)</td>
-            <td>±60 min</td>
-          </tr>
-          <tr>
-            <td>CPI, GDP, Inflation, Monetary Policy</td>
-            <td>±60 min</td>
-          </tr>
-          <tr>
-            <td>All other High impact events</td>
-            <td>±30 min</td>
-          </tr>
-        </tbody>
-      </table>
-      <p style="font-size: 12px; color: var(--dim)">
-        Pass <code>window_minutes</code> to any endpoint to override for your
-        strategy.
-      </p>
-    </div>
+    <!-- Layout -->
+    <div class="page-layout">
+      <!-- Sidebar -->
+      <nav class="sidebar">
+        <div class="sidebar-brand">
+          <div class="sidebar-brand-name">FN<em>EWS</em>TEER</div>
+          <div class="sidebar-brand-sub">API REFERENCE v1.0.0</div>
+        </div>
 
-    <span class="section-anchor" id="integration"></span>
-    <div class="section">
-      <div class="section-title">Algo bot integration (Python)</div>
-      <div class="code-wrap">
-        <button class="copy-btn" onclick="copyPre(this)">Copy</button>
-        <span class="code-label">PYTHON</span>
-        <pre><span class="kw">import</span> httpx
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Overview</div>
+          <a class="sidebar-link" onclick="goTo('overview')">Introduction</a>
+          <a class="sidebar-link" onclick="goTo('auth')">Authentication</a>
+          <a class="sidebar-link" onclick="goTo('windows')">Blackout windows</a>
+          <a class="sidebar-link" onclick="goTo('integration')"
+            >Bot integration</a
+          >
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Endpoints</div>
+          <a class="sidebar-link" onclick="goTo('ep-health')"
+            ><span class="method-pill pill-get">GET</span>/health</a
+          >
+          <a class="sidebar-link" onclick="goTo('ep-check')"
+            ><span class="method-pill pill-get">GET</span>/v1/news/check</a
+          >
+          <a class="sidebar-link" onclick="goTo('ep-upcoming')"
+            ><span class="method-pill pill-get">GET</span>/v1/news/upcoming</a
+          >
+          <a class="sidebar-link" onclick="goTo('ep-blackout')"
+            ><span class="method-pill pill-get">GET</span
+            >/v1/news/blackout-zones</a
+          >
+          <a class="sidebar-link" onclick="goTo('ep-refresh')"
+            ><span class="method-pill pill-post">POST</span
+            >/admin/refresh-cache</a
+          >
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Schemas</div>
+          <a class="sidebar-link" onclick="goTo('schema-check')"
+            >CheckResponse</a
+          >
+          <a class="sidebar-link" onclick="goTo('schema-upcoming')"
+            >UpcomingNewsResponse</a
+          >
+          <a class="sidebar-link" onclick="goTo('schema-blackout')"
+            >BlackoutZone</a
+          >
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">More</div>
+          <a class="sidebar-link" href="../mcp/">MCP Guide ↗</a>
+          <a class="sidebar-link" href="../event-taxonomy/">Event Taxonomy ↗</a>
+          <a
+            class="sidebar-link"
+            href="https://github.com/tushcmd/fnewsteer"
+            target="_blank"
+            >GitHub ↗</a
+          >
+        </div>
+      </nav>
+
+      <!-- Main -->
+      <main class="page-main">
+        <span class="anchor" id="overview"></span>
+        <div class="page-hero">
+          <h1 class="page-hero-title">FN<em>EWS</em>TEER API</h1>
+          <p class="page-hero-desc">
+            Fundamental Analysis (News) Steer — a loss-prevention API for price
+            action traders. Know when
+            <em style="color: var(--accent); font-style: normal">not</em> to
+            trade so news events don't blindside your technically sound setups.
+          </p>
+          <div class="hero-meta">
+            <div class="meta-chip">
+              <span class="chip-dot safe"></span>Hosted ·
+              fnewsteer-api.onrender.com
+            </div>
+            <div class="meta-chip">
+              <span class="chip-dot amber"></span>Cold starts ~30–60s on first
+              request
+            </div>
+            <div class="meta-chip">OpenAPI 3.1.0</div>
+          </div>
+        </div>
+
+        <span class="anchor" id="auth"></span>
+        <div style="margin-bottom: 40px">
+          <h2>Authentication</h2>
+          <p>
+            All <code>/v1/</code> and <code>/admin/</code> endpoints require an
+            API key in the request header. The <code>/health</code> endpoint is
+            public.
+          </p>
+          <div class="code-wrap">
+            <span class="code-lang">HEADER</span>
+            <pre><span class="key">X-API-Key</span>: your-secret-api-key</pre>
+          </div>
+          <div class="callout callout-info">
+            Public hosted key:
+            <code
+              >f1e922df0a7d52af4ff2bfc3c4eb1da01e5f8ea4779e28acb3200ced29aaf5a5</code
+            >
+          </div>
+        </div>
+
+        <span class="anchor" id="windows"></span>
+        <div style="margin-bottom: 40px">
+          <h2>Smart Blackout Windows</h2>
+          <table class="windows-table">
+            <thead>
+              <tr>
+                <th>Event Type</th>
+                <th>Window</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>FOMC, Federal Funds Rate, Interest Rate Decision</td>
+                <td>±60 min</td>
+              </tr>
+              <tr>
+                <td>Non-Farm Payrolls (NFP)</td>
+                <td>±60 min</td>
+              </tr>
+              <tr>
+                <td>CPI, GDP, Inflation, Monetary Policy</td>
+                <td>±60 min</td>
+              </tr>
+              <tr>
+                <td>All other High impact events</td>
+                <td>±30 min</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            Pass <code>window_minutes</code> to any endpoint to override for
+            your strategy.
+          </p>
+        </div>
+
+        <span class="anchor" id="integration"></span>
+        <div style="margin-bottom: 40px">
+          <h2>Algo Bot Integration</h2>
+          <div class="code-wrap">
+            <button class="code-copy" onclick="copyCode(this)">COPY</button>
+            <span class="code-lang">PYTHON</span>
+            <pre><span class="kw">import</span> httpx
 
 FNEWSTEER_URL = <span class="str">"https://fnewsteer-api.onrender.com"</span>
 API_KEY = <span class="str">"your-api-key"</span>
@@ -757,7 +504,7 @@ API_KEY = <span class="str">"your-api-key"</span>
         data = r.json()
         <span class="kw">if not</span> data[<span class="str">"safe_to_trade"</span>]:
             <span class="kw">for</span> ev <span class="kw">in</span> data[<span class="str">"blocking_events"</span>]:
-                <span class="kw">print</span>(f<span class="str">"Blocked: {ev['title']} in {ev['minutes_to_event']:.0f}m"</span>)
+                <span class="kw">print</span>(f<span class="str">"Blocked: {ev['title']} — {ev['minutes_to_event']:.0f}m"</span>)
         <span class="kw">return</span> data[<span class="str">"safe_to_trade"</span>]
     <span class="kw">except</span> Exception <span class="kw">as</span> e:
         <span class="kw">print</span>(f<span class="str">"[FNEWSTEER] Check failed: {e}. Blocking as precaution."</span>)
@@ -768,549 +515,457 @@ API_KEY = <span class="str">"your-api-key"</span>
     place_order(...)
 <span class="kw">else</span>:
     <span class="kw">print</span>(<span class="str">"Sitting on hands — news window active."</span>)</pre>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-title">Endpoints</div>
-
-      <span class="section-anchor" id="ep-health"></span>
-      <div class="endpoint-card" id="card-health">
-        <div class="endpoint-header" onclick="toggleCard('health')">
-          <span class="endpoint-method get-badge">GET</span>
-          <span class="endpoint-path">/health</span>
-          <span class="endpoint-summary">Health check · No auth required</span>
-          <span class="endpoint-chevron">▼</span>
-        </div>
-        <div class="endpoint-body">
-          <div class="endpoint-desc">
-            Returns service status and cache age. Call this first in automated
-            pipelines to verify the data layer is live.
           </div>
-          <div class="try-it">
-            <div class="try-title">Try it</div>
-            <div style="display: flex; gap: 8px">
+        </div>
+
+        <!-- ENDPOINTS -->
+        <h2 style="margin-top: 0">Endpoints</h2>
+
+        <span class="anchor" id="ep-health"></span>
+        <div class="endpoint-card" id="card-health">
+          <div class="endpoint-header" onclick="toggleCard('health')">
+            <span class="method-pill pill-get">GET</span>
+            <span class="endpoint-path">/health</span>
+            <span class="endpoint-summary"
+              >Health check · No auth required</span
+            >
+            <span class="endpoint-chevron">▼</span>
+          </div>
+          <div class="endpoint-body">
+            <div class="endpoint-desc">
+              Returns service status and cache age. Call this first in automated
+              pipelines to verify the data layer is live.
+            </div>
+            <div class="try-it">
+              <div class="try-title">Try it</div>
               <button class="try-btn" onclick="tryHealth()">
                 Send request
               </button>
+              <div class="try-result" id="res-health"></div>
             </div>
-            <div class="try-result" id="res-health"></div>
-          </div>
-          <div class="code-wrap" style="margin-top: 14px">
-            <span class="code-label">RESPONSE</span>
-            <pre>{ <span class="key">"status"</span>: <span class="str">"ok"</span>, <span class="key">"cache_age_seconds"</span>: <span class="val">312.4</span>, <span class="key">"cache_populated"</span>: <span class="val">true</span> }</pre>
+            <div class="code-wrap" style="margin-top: 14px">
+              <span class="code-lang">RESPONSE</span>
+              <pre>{ <span class="key">"status"</span>: <span class="str">"ok"</span>, <span class="key">"cache_age_seconds"</span>: <span class="val">312.4</span>, <span class="key">"cache_populated"</span>: <span class="val">true</span> }</pre>
+            </div>
           </div>
         </div>
-      </div>
 
-      <span class="section-anchor" id="ep-check"></span>
-      <div class="endpoint-card" id="card-check">
-        <div class="endpoint-header" onclick="toggleCard('check')">
-          <span class="endpoint-method get-badge">GET</span>
-          <span class="endpoint-path">/v1/news/check</span>
-          <span class="endpoint-summary"
-            >Safe-to-trade check · Primary bot endpoint</span
-          >
-          <span class="endpoint-chevron">▼</span>
-        </div>
-        <div class="endpoint-body">
-          <div class="endpoint-desc">
-            The primary bot integration endpoint. Pass a currency or pair and
-            get back a binary <code>safe_to_trade</code> signal. Call this
-            before placing any order.
-          </div>
-          <div class="params-title">Parameters</div>
-          <div class="param-row">
-            <span class="param-name"
-              >symbol <span class="param-required">required</span></span
-            ><span class="param-type">string</span
-            ><span class="param-desc"
-              >Currency (<code>USD</code>) or pair (<code>EURUSD</code>) to
-              check</span
+        <span class="anchor" id="ep-check"></span>
+        <div class="endpoint-card" id="card-check">
+          <div class="endpoint-header" onclick="toggleCard('check')">
+            <span class="method-pill pill-get">GET</span>
+            <span class="endpoint-path">/v1/news/check</span>
+            <span class="endpoint-summary"
+              >Safe-to-trade check · Primary bot endpoint</span
             >
+            <span class="endpoint-chevron">▼</span>
           </div>
-          <div class="param-row">
-            <span class="param-name"
-              >include_medium <span class="param-optional">optional</span></span
-            ><span class="param-type">boolean</span
-            ><span class="param-desc"
-              >Also block on Medium impact events. Default:
-              <span class="param-default">false</span></span
-            >
-          </div>
-          <div class="param-row">
-            <span class="param-name"
-              >window_minutes <span class="param-optional">optional</span></span
-            ><span class="param-type">integer</span
-            ><span class="param-desc"
-              >Override blackout window (1–1440 min). Omit to use smart
-              defaults.</span
-            >
-          </div>
-          <div class="try-it">
-            <div class="try-title">Try it</div>
-            <div class="try-row">
-              <span class="try-label">symbol</span>
-              <input
-                class="try-input"
-                id="check-symbol"
-                value="EURUSD"
-                placeholder="EURUSD"
-              />
+          <div class="endpoint-body">
+            <div class="endpoint-desc">
+              The primary bot integration endpoint. Pass a currency or pair and
+              get back a binary <code>safe_to_trade</code> signal. Call this
+              before placing any order.
             </div>
-            <div class="try-row">
-              <span class="try-label">include_medium</span>
-              <select
-                class="try-input"
-                id="check-medium"
-                style="max-width: 120px"
+            <div class="params-title">Parameters</div>
+            <div class="param-row">
+              <span class="param-name"
+                >symbol <span class="param-req">required</span></span
               >
-                <option value="false">false</option>
-                <option value="true">true</option>
-              </select>
+              <span class="param-type">string</span>
+              <span class="param-desc"
+                >Currency (<code>USD</code>) or pair (<code>EURUSD</code>) to
+                check</span
+              >
             </div>
-            <button class="try-btn" onclick="tryCheck()">Send request</button>
-            <div class="try-result" id="res-check"></div>
-          </div>
-        </div>
-      </div>
-
-      <span class="section-anchor" id="ep-upcoming"></span>
-      <div class="endpoint-card" id="card-upcoming">
-        <div class="endpoint-header" onclick="toggleCard('upcoming')">
-          <span class="endpoint-method get-badge">GET</span>
-          <span class="endpoint-path">/v1/news/upcoming</span>
-          <span class="endpoint-summary">Full week calendar</span>
-          <span class="endpoint-chevron">▼</span>
-        </div>
-        <div class="endpoint-body">
-          <div class="endpoint-desc">
-            Returns all high-impact (and optionally medium-impact) news events
-            for the current week. Each event includes its computed blackout
-            window.
-          </div>
-          <div class="params-title">Parameters</div>
-          <div class="param-row">
-            <span class="param-name"
-              >currency <span class="param-optional">optional</span></span
-            ><span class="param-type">string</span
-            ><span class="param-desc"
-              >Filter by currency (<code>USD</code>) or pair
-              (<code>EURUSD</code>)</span
-            >
-          </div>
-          <div class="param-row">
-            <span class="param-name"
-              >include_medium <span class="param-optional">optional</span></span
-            ><span class="param-type">boolean</span
-            ><span class="param-desc"
-              >Include medium impact events. Default:
-              <span class="param-default">false</span></span
-            >
-          </div>
-          <div class="param-row">
-            <span class="param-name"
-              >window_minutes <span class="param-optional">optional</span></span
-            ><span class="param-type">integer</span
-            ><span class="param-desc"
-              >Override blackout window for all events (1–1440)</span
-            >
-          </div>
-          <div class="try-it">
-            <div class="try-title">Try it</div>
-            <div class="try-row">
-              <span class="try-label">currency</span>
-              <input
-                class="try-input"
-                id="upcoming-currency"
-                value="USD"
-                placeholder="USD or EURUSD"
-              />
+            <div class="param-row">
+              <span class="param-name"
+                >include_medium <span class="param-opt">optional</span></span
+              >
+              <span class="param-type">boolean</span>
+              <span class="param-desc"
+                >Also block on Medium impact events. Default:
+                <span class="param-default">false</span></span
+              >
             </div>
-            <button class="try-btn" onclick="tryUpcoming()">
-              Send request
-            </button>
-            <div class="try-result" id="res-upcoming"></div>
-          </div>
-        </div>
-      </div>
-
-      <span class="section-anchor" id="ep-blackout"></span>
-      <div class="endpoint-card" id="card-blackout">
-        <div class="endpoint-header" onclick="toggleCard('blackout')">
-          <span class="endpoint-method get-badge">GET</span>
-          <span class="endpoint-path">/v1/news/blackout-zones</span>
-          <span class="endpoint-summary">Blackout zones · For backtesting</span>
-          <span class="endpoint-chevron">▼</span>
-        </div>
-        <div class="endpoint-body">
-          <div class="endpoint-desc">
-            Returns a flat list of time ranges to avoid for the current week.
-            Feed this into your backtesting engine to exclude news-contaminated
-            zones.
-          </div>
-          <div class="params-title">Parameters</div>
-          <div class="param-row">
-            <span class="param-name"
-              >currency <span class="param-optional">optional</span></span
-            ><span class="param-type">string</span
-            ><span class="param-desc"
-              >Filter by currency or pair. Omit for all currencies.</span
-            >
-          </div>
-          <div class="param-row">
-            <span class="param-name"
-              >include_medium <span class="param-optional">optional</span></span
-            ><span class="param-type">boolean</span
-            ><span class="param-desc"
-              >Include medium impact events. Default:
-              <span class="param-default">false</span></span
-            >
-          </div>
-          <div class="param-row">
-            <span class="param-name"
-              >window_minutes <span class="param-optional">optional</span></span
-            ><span class="param-type">integer</span
-            ><span class="param-desc">Override blackout window in minutes</span>
-          </div>
-          <div class="try-it">
-            <div class="try-title">Try it</div>
-            <div class="try-row">
-              <span class="try-label">currency</span>
-              <input
-                class="try-input"
-                id="blackout-currency"
-                value="GBPUSD"
-                placeholder="GBPUSD"
-              />
+            <div class="param-row">
+              <span class="param-name"
+                >window_minutes <span class="param-opt">optional</span></span
+              >
+              <span class="param-type">integer</span>
+              <span class="param-desc"
+                >Override blackout window (1–1440 min). Omit to use smart
+                defaults.</span
+              >
             </div>
-            <button class="try-btn" onclick="tryBlackout()">
-              Send request
-            </button>
-            <div class="try-result" id="res-blackout"></div>
+            <div class="try-it">
+              <div class="try-title">Try it</div>
+              <div class="try-row">
+                <span class="try-label">symbol</span>
+                <input
+                  class="try-input"
+                  id="check-symbol"
+                  value="EURUSD"
+                  placeholder="EURUSD"
+                />
+              </div>
+              <div class="try-row">
+                <span class="try-label">include_medium</span>
+                <select
+                  class="try-input"
+                  id="check-medium"
+                  style="max-width: 120px"
+                >
+                  <option value="false">false</option>
+                  <option value="true">true</option>
+                </select>
+              </div>
+              <button class="try-btn" onclick="tryCheck()">Send request</button>
+              <div class="try-result" id="res-check"></div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <span class="section-anchor" id="ep-refresh"></span>
-      <div class="endpoint-card" id="card-refresh">
-        <div class="endpoint-header" onclick="toggleCard('refresh')">
-          <span class="endpoint-method post-badge">POST</span>
-          <span class="endpoint-path">/admin/refresh-cache</span>
-          <span class="endpoint-summary">Force cache refresh</span>
-          <span class="endpoint-chevron">▼</span>
+        <span class="anchor" id="ep-upcoming"></span>
+        <div class="endpoint-card" id="card-upcoming">
+          <div class="endpoint-header" onclick="toggleCard('upcoming')">
+            <span class="method-pill pill-get">GET</span>
+            <span class="endpoint-path">/v1/news/upcoming</span>
+            <span class="endpoint-summary">Full week calendar</span>
+            <span class="endpoint-chevron">▼</span>
+          </div>
+          <div class="endpoint-body">
+            <div class="endpoint-desc">
+              Returns all high-impact (and optionally medium-impact) news events
+              for the current week. Each event includes its computed blackout
+              window.
+            </div>
+            <div class="params-title">Parameters</div>
+            <div class="param-row">
+              <span class="param-name"
+                >currency <span class="param-opt">optional</span></span
+              >
+              <span class="param-type">string</span>
+              <span class="param-desc"
+                >Filter by currency (<code>USD</code>) or pair
+                (<code>EURUSD</code>)</span
+              >
+            </div>
+            <div class="param-row">
+              <span class="param-name"
+                >include_medium <span class="param-opt">optional</span></span
+              >
+              <span class="param-type">boolean</span>
+              <span class="param-desc"
+                >Include medium impact events. Default:
+                <span class="param-default">false</span></span
+              >
+            </div>
+            <div class="param-row">
+              <span class="param-name"
+                >window_minutes <span class="param-opt">optional</span></span
+              >
+              <span class="param-type">integer</span>
+              <span class="param-desc"
+                >Override blackout window for all events (1–1440)</span
+              >
+            </div>
+            <div class="try-it">
+              <div class="try-title">Try it</div>
+              <div class="try-row">
+                <span class="try-label">currency</span>
+                <input
+                  class="try-input"
+                  id="upcoming-currency"
+                  value="USD"
+                  placeholder="USD or EURUSD"
+                />
+              </div>
+              <button class="try-btn" onclick="tryUpcoming()">
+                Send request
+              </button>
+              <div class="try-result" id="res-upcoming"></div>
+            </div>
+          </div>
         </div>
-        <div class="endpoint-body">
-          <div class="endpoint-desc">
-            Invalidates the in-memory calendar cache so the next request fetches
-            fresh data from ForexFactory.
+
+        <span class="anchor" id="ep-blackout"></span>
+        <div class="endpoint-card" id="card-blackout">
+          <div class="endpoint-header" onclick="toggleCard('blackout')">
+            <span class="method-pill pill-get">GET</span>
+            <span class="endpoint-path">/v1/news/blackout-zones</span>
+            <span class="endpoint-summary"
+              >Blackout zones · For backtesting</span
+            >
+            <span class="endpoint-chevron">▼</span>
           </div>
-          <div class="callout callout-warn">
-            Requires authentication. Use when you suspect stale data.
-          </div>
-          <div class="try-it">
-            <div class="try-title">Try it</div>
-            <button class="try-btn" onclick="tryRefresh()">Send request</button>
-            <div class="try-result" id="res-refresh"></div>
+          <div class="endpoint-body">
+            <div class="endpoint-desc">
+              Returns a flat list of time ranges to avoid for the current week.
+              Feed this into your backtesting engine to exclude
+              news-contaminated zones.
+            </div>
+            <div class="params-title">Parameters</div>
+            <div class="param-row">
+              <span class="param-name"
+                >currency <span class="param-opt">optional</span></span
+              >
+              <span class="param-type">string</span>
+              <span class="param-desc"
+                >Filter by currency or pair. Omit for all currencies.</span
+              >
+            </div>
+            <div class="param-row">
+              <span class="param-name"
+                >include_medium <span class="param-opt">optional</span></span
+              >
+              <span class="param-type">boolean</span>
+              <span class="param-desc"
+                >Include medium impact events. Default:
+                <span class="param-default">false</span></span
+              >
+            </div>
+            <div class="param-row">
+              <span class="param-name"
+                >window_minutes <span class="param-opt">optional</span></span
+              >
+              <span class="param-type">integer</span>
+              <span class="param-desc"
+                >Override blackout window in minutes</span
+              >
+            </div>
+            <div class="try-it">
+              <div class="try-title">Try it</div>
+              <div class="try-row">
+                <span class="try-label">currency</span>
+                <input
+                  class="try-input"
+                  id="blackout-currency"
+                  value="GBPUSD"
+                  placeholder="GBPUSD"
+                />
+              </div>
+              <button class="try-btn" onclick="tryBlackout()">
+                Send request
+              </button>
+              <div class="try-result" id="res-blackout"></div>
+            </div>
           </div>
         </div>
-      </div>
+
+        <span class="anchor" id="ep-refresh"></span>
+        <div class="endpoint-card" id="card-refresh">
+          <div class="endpoint-header" onclick="toggleCard('refresh')">
+            <span class="method-pill pill-post">POST</span>
+            <span class="endpoint-path">/admin/refresh-cache</span>
+            <span class="endpoint-summary">Force cache refresh</span>
+            <span class="endpoint-chevron">▼</span>
+          </div>
+          <div class="endpoint-body">
+            <div class="endpoint-desc">
+              Invalidates the in-memory calendar cache so the next request
+              fetches fresh data from ForexFactory.
+            </div>
+            <div class="callout callout-warn">
+              Requires authentication. Use when you suspect stale data.
+            </div>
+            <div class="try-it">
+              <div class="try-title">Try it</div>
+              <button class="try-btn" onclick="tryRefresh()">
+                Send request
+              </button>
+              <div class="try-result" id="res-refresh"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SCHEMAS -->
+        <h2>Response Schemas</h2>
+
+        <span class="anchor" id="schema-check"></span>
+        <div class="schema-title">CheckResponse</div>
+        <div class="schema-block">
+          <div class="schema-row">
+            <span class="schema-name">safe_to_trade</span
+            ><span class="schema-type">boolean</span
+            ><span class="schema-desc"
+              >Primary signal. <code>true</code> = safe to trade right now</span
+            >
+          </div>
+          <div class="schema-row">
+            <span class="schema-name">symbol</span
+            ><span class="schema-type">string</span
+            ><span class="schema-desc">The symbol that was checked</span>
+          </div>
+          <div class="schema-row">
+            <span class="schema-name">currencies_checked</span
+            ><span class="schema-type">string[]</span
+            ><span class="schema-desc"
+              >Currencies extracted from the pair (e.g. ["EUR","USD"])</span
+            >
+          </div>
+          <div class="schema-row">
+            <span class="schema-name">checked_at</span
+            ><span class="schema-type">datetime</span
+            ><span class="schema-desc">UTC timestamp of the check</span>
+          </div>
+          <div class="schema-row">
+            <span class="schema-name">blocking_events</span
+            ><span class="schema-type">BlockingEvent[]</span
+            ><span class="schema-desc"
+              >Events currently within their blackout window. Empty if
+              safe.</span
+            >
+          </div>
+        </div>
+
+        <span class="anchor" id="schema-upcoming"></span>
+        <div class="schema-title">UpcomingNewsResponse</div>
+        <div class="schema-block">
+          <div class="schema-row">
+            <span class="schema-name">fetched_at</span
+            ><span class="schema-type">datetime</span
+            ><span class="schema-desc"
+              >When this data was fetched from ForexFactory</span
+            >
+          </div>
+          <div class="schema-row">
+            <span class="schema-name">event_count</span
+            ><span class="schema-type">integer</span
+            ><span class="schema-desc">Total number of events returned</span>
+          </div>
+          <div class="schema-row">
+            <span class="schema-name">events</span
+            ><span class="schema-type">NewsEvent[]</span
+            ><span class="schema-desc"
+              >Full event list with computed blackout windows</span
+            >
+          </div>
+        </div>
+
+        <span class="anchor" id="schema-blackout"></span>
+        <div class="schema-title">BlackoutZone</div>
+        <div class="schema-block">
+          <div class="schema-row">
+            <span class="schema-name">start</span
+            ><span class="schema-type">datetime</span
+            ><span class="schema-desc">Blackout window start (UTC)</span>
+          </div>
+          <div class="schema-row">
+            <span class="schema-name">end</span
+            ><span class="schema-type">datetime</span
+            ><span class="schema-desc">Blackout window end (UTC)</span>
+          </div>
+          <div class="schema-row">
+            <span class="schema-name">event</span
+            ><span class="schema-type">string</span
+            ><span class="schema-desc"
+              >Event name (e.g. "Non-Farm Payrolls")</span
+            >
+          </div>
+          <div class="schema-row">
+            <span class="schema-name">currency</span
+            ><span class="schema-type">string</span
+            ><span class="schema-desc">Affected currency</span>
+          </div>
+          <div class="schema-row">
+            <span class="schema-name">impact</span
+            ><span class="schema-type">string</span
+            ><span class="schema-desc">"High" or "Medium"</span>
+          </div>
+          <div class="schema-row">
+            <span class="schema-name">event_time</span
+            ><span class="schema-type">datetime</span
+            ><span class="schema-desc">Actual scheduled event time (UTC)</span>
+          </div>
+        </div>
+      </main>
     </div>
 
-    <div class="section">
-      <div class="section-title">Response schemas</div>
+    <script>
+      const BASE = 'https://fnewsteer-api.onrender.com';
+      const KEY =
+        'f1e922df0a7d52af4ff2bfc3c4eb1da01e5f8ea4779e28acb3200ced29aaf5a5';
 
-      <span class="section-anchor" id="schema-check"></span>
-      <p
-        style="
-          font-size: 12px;
-          font-weight: 600;
-          margin-bottom: 8px;
-          color: var(--text);
-        "
-      >
-        CheckResponse
-      </p>
-      <div
-        style="
-          background: var(--surface);
-          border: 0.5px solid var(--border);
-          border-radius: var(--radius);
-          padding: 12px 16px;
-          margin-bottom: 16px;
-        "
-      >
-        <div class="schema-field">
-          <span class="field-name">safe_to_trade</span
-          ><span class="field-type">boolean</span
-          ><span class="field-desc"
-            >Primary signal. <code>true</code> = safe to trade right now</span
-          >
-        </div>
-        <div class="schema-field">
-          <span class="field-name">symbol</span
-          ><span class="field-type">string</span
-          ><span class="field-desc">The symbol that was checked</span>
-        </div>
-        <div class="schema-field">
-          <span class="field-name">currencies_checked</span
-          ><span class="field-type">string[]</span
-          ><span class="field-desc"
-            >Currencies extracted from the pair (e.g. ["EUR","USD"])</span
-          >
-        </div>
-        <div class="schema-field">
-          <span class="field-name">checked_at</span
-          ><span class="field-type">datetime</span
-          ><span class="field-desc">UTC timestamp of the check</span>
-        </div>
-        <div class="schema-field">
-          <span class="field-name">blocking_events</span
-          ><span class="field-type">BlockingEvent[]</span
-          ><span class="field-desc"
-            >Events currently within their blackout window. Empty if safe.</span
-          >
-        </div>
-      </div>
-
-      <span class="section-anchor" id="schema-upcoming"></span>
-      <p
-        style="
-          font-size: 12px;
-          font-weight: 600;
-          margin-bottom: 8px;
-          color: var(--text);
-        "
-      >
-        UpcomingNewsResponse
-      </p>
-      <div
-        style="
-          background: var(--surface);
-          border: 0.5px solid var(--border);
-          border-radius: var(--radius);
-          padding: 12px 16px;
-          margin-bottom: 16px;
-        "
-      >
-        <div class="schema-field">
-          <span class="field-name">fetched_at</span
-          ><span class="field-type">datetime</span
-          ><span class="field-desc"
-            >When this data was fetched from ForexFactory</span
-          >
-        </div>
-        <div class="schema-field">
-          <span class="field-name">event_count</span
-          ><span class="field-type">integer</span
-          ><span class="field-desc">Total number of events returned</span>
-        </div>
-        <div class="schema-field">
-          <span class="field-name">events</span
-          ><span class="field-type">NewsEvent[]</span
-          ><span class="field-desc"
-            >Full event list with computed blackout windows</span
-          >
-        </div>
-      </div>
-
-      <span class="section-anchor" id="schema-blackout"></span>
-      <p
-        style="
-          font-size: 12px;
-          font-weight: 600;
-          margin-bottom: 8px;
-          color: var(--text);
-        "
-      >
-        BlackoutZone
-      </p>
-      <div
-        style="
-          background: var(--surface);
-          border: 0.5px solid var(--border);
-          border-radius: var(--radius);
-          padding: 12px 16px;
-        "
-      >
-        <div class="schema-field">
-          <span class="field-name">start</span
-          ><span class="field-type">datetime</span
-          ><span class="field-desc">Blackout window start (UTC)</span>
-        </div>
-        <div class="schema-field">
-          <span class="field-name">end</span
-          ><span class="field-type">datetime</span
-          ><span class="field-desc">Blackout window end (UTC)</span>
-        </div>
-        <div class="schema-field">
-          <span class="field-name">event</span
-          ><span class="field-type">string</span
-          ><span class="field-desc">Event name (e.g. "Non-Farm Payrolls")</span>
-        </div>
-        <div class="schema-field">
-          <span class="field-name">currency</span
-          ><span class="field-type">string</span
-          ><span class="field-desc">Affected currency</span>
-        </div>
-        <div class="schema-field">
-          <span class="field-name">impact</span
-          ><span class="field-type">string</span
-          ><span class="field-desc">"High" or "Medium"</span>
-        </div>
-        <div class="schema-field">
-          <span class="field-name">event_time</span
-          ><span class="field-type">datetime</span
-          ><span class="field-desc">Actual scheduled event time (UTC)</span>
-        </div>
-      </div>
-    </div>
-  </main>
-</div>
-
-<script>
-  const BASE = 'https://fnewsteer-api.onrender.com';
-  const KEY =
-    'f1e922df0a7d52af4ff2bfc3c4eb1da01e5f8ea4779e28acb3200ced29aaf5a5';
-
-  function toggleCard(id) {
-    const card = document.getElementById('card-' + id);
-    card.classList.toggle('open');
-  }
-
-  function goTo(id) {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-    if (id.startsWith('ep-')) {
-      const name = id.replace('ep-', '');
-      const card = document.getElementById('card-' + name);
-      if (card && !card.classList.contains('open')) card.classList.add('open');
-    }
-  }
-
-  function showResult(id, ok, data) {
-    const el = document.getElementById('res-' + id);
-    el.style.display = 'block';
-    el.innerHTML = `<div class="result-status ${ok ? 'result-ok' : 'result-err'}">${ok ? '200 OK' : 'Error'}</div><pre class="result-pre">${JSON.stringify(data, null, 2)}</pre>`;
-  }
-
-  async function tryHealth() {
-    try {
-      const r = await fetch(BASE + '/health');
-      showResult('health', r.ok, await r.json());
-    } catch (e) {
-      showResult('health', false, { error: e.message });
-    }
-  }
-
-  async function tryCheck() {
-    const symbol = document.getElementById('check-symbol').value || 'EURUSD';
-    const medium = document.getElementById('check-medium').value;
-    try {
-      const r = await fetch(
-        `${BASE}/v1/news/check?symbol=${symbol}&include_medium=${medium}`,
-        { headers: { 'X-API-Key': KEY } },
-      );
-      showResult('check', r.ok, await r.json());
-    } catch (e) {
-      showResult('check', false, { error: e.message });
-    }
-  }
-
-  async function tryUpcoming() {
-    const cur = document.getElementById('upcoming-currency').value || 'USD';
-    try {
-      const r = await fetch(`${BASE}/v1/news/upcoming?currency=${cur}`, {
-        headers: { 'X-API-Key': KEY },
-      });
-      showResult('upcoming', r.ok, await r.json());
-    } catch (e) {
-      showResult('upcoming', false, { error: e.message });
-    }
-  }
-
-  async function tryBlackout() {
-    const cur = document.getElementById('blackout-currency').value || 'GBPUSD';
-    try {
-      const r = await fetch(`${BASE}/v1/news/blackout-zones?currency=${cur}`, {
-        headers: { 'X-API-Key': KEY },
-      });
-      showResult('blackout', r.ok, await r.json());
-    } catch (e) {
-      showResult('blackout', false, { error: e.message });
-    }
-  }
-
-  async function tryRefresh() {
-    try {
-      const r = await fetch(`${BASE}/admin/refresh-cache`, {
-        method: 'POST',
-        headers: { 'X-API-Key': KEY },
-      });
-      showResult('refresh', r.ok, await r.json());
-    } catch (e) {
-      showResult('refresh', false, { error: e.message });
-    }
-  }
-
-  function copyPre(btn) {
-    const pre = btn.closest('.code-wrap').querySelector('pre');
-    navigator.clipboard.writeText(pre.innerText);
-    btn.textContent = 'Copied';
-    setTimeout(() => (btn.textContent = 'Copy'), 1500);
-  }
-
-  let forcedLight = false;
-  function toggleTheme() {
-    forcedLight = !forcedLight;
-    const root = document.documentElement;
-    if (forcedLight) {
-      root.style.setProperty('--bg', '#ffffff');
-      root.style.setProperty('--surface', '#f8f7f4');
-      root.style.setProperty('--surface2', '#f1f0ec');
-      root.style.setProperty('--border', 'rgba(0,0,0,0.08)');
-      root.style.setProperty('--border2', 'rgba(0,0,0,0.14)');
-      root.style.setProperty('--text', '#1a1a1a');
-      root.style.setProperty('--muted', '#666');
-      root.style.setProperty('--dim', '#999');
-      root.style.setProperty('--safe', '#16a34a');
-      root.style.setProperty('--safe-bg', '#f0fdf4');
-      root.style.setProperty('--safe-border', '#bbf7d0');
-      root.style.setProperty('--danger', '#b45309');
-      root.style.setProperty('--danger-bg', '#fffbeb');
-      root.style.setProperty('--danger-border', '#fde68a');
-      root.style.setProperty('--accent', '#b45309');
-      root.style.setProperty('--tag-get-bg', '#dbeafe');
-      root.style.setProperty('--tag-get', 'rgb(29,78,216)');
-      root.style.setProperty('--tag-post-bg', '#dcfce7');
-      root.style.setProperty('--tag-post', 'rgb(21,128,61)');
-      root.style.setProperty('--key', '#1d4ed8');
-      document.getElementById('theme-icon').textContent = '☾';
-      document.getElementById('theme-btn').childNodes[1].textContent =
-        ' Dark mode';
-    } else {
-      root.style.setProperty('--bg', '#0f0f10');
-      root.style.setProperty('--surface', '#18181b');
-      root.style.setProperty('--surface2', '#222228');
-      root.style.setProperty('--border', 'rgba(255,255,255,0.08)');
-      root.style.setProperty('--border2', 'rgba(255,255,255,0.14)');
-      root.style.setProperty('--text', '#e8e8ed');
-      root.style.setProperty('--muted', '#999');
-      root.style.setProperty('--dim', '#666');
-      root.style.setProperty('--safe', '#22c55e');
-      root.style.setProperty('--safe-bg', 'rgba(34,197,94,0.08)');
-      root.style.setProperty('--safe-border', 'rgba(34,197,94,0.2)');
-      root.style.setProperty('--danger', '#f59e0b');
-      root.style.setProperty('--danger-bg', 'rgba(245,158,11,0.08)');
-      root.style.setProperty('--danger-border', 'rgba(245,158,11,0.2)');
-      root.style.setProperty('--accent', '#fbbf24');
-      root.style.setProperty('--tag-get-bg', 'rgba(59,130,246,0.15)');
-      root.style.setProperty('--tag-get', '#93c5fd');
-      root.style.setProperty('--tag-post-bg', 'rgba(34,197,94,0.15)');
-      root.style.setProperty('--tag-post', '#86efac');
-      root.style.setProperty('--key', '#60a5fa');
-      document.getElementById('theme-icon').textContent = '☀';
-      document.getElementById('theme-btn').childNodes[1].textContent =
-        ' Light mode';
-    }
-  }
-</script>
+      function toggleCard(id) {
+        document.getElementById('card-' + id).classList.toggle('open');
+      }
+      function goTo(id) {
+        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+        if (id.startsWith('ep-')) {
+          const name = id.replace('ep-', '');
+          const card = document.getElementById('card-' + name);
+          if (card && !card.classList.contains('open'))
+            card.classList.add('open');
+        }
+      }
+      function showResult(id, ok, data) {
+        const el = document.getElementById('res-' + id);
+        el.style.display = 'block';
+        el.innerHTML = `<div class="result-status ${ok ? 'result-ok' : 'result-err'}">${ok ? '200 OK' : 'Error'}</div><pre class="result-pre">${JSON.stringify(data, null, 2)}</pre>`;
+      }
+      async function tryHealth() {
+        try {
+          const r = await fetch(BASE + '/health');
+          showResult('health', r.ok, await r.json());
+        } catch (e) {
+          showResult('health', false, { error: e.message });
+        }
+      }
+      async function tryCheck() {
+        const symbol =
+          document.getElementById('check-symbol').value || 'EURUSD';
+        const medium = document.getElementById('check-medium').value;
+        try {
+          const r = await fetch(
+            `${BASE}/v1/news/check?symbol=${symbol}&include_medium=${medium}`,
+            { headers: { 'X-API-Key': KEY } },
+          );
+          showResult('check', r.ok, await r.json());
+        } catch (e) {
+          showResult('check', false, { error: e.message });
+        }
+      }
+      async function tryUpcoming() {
+        const cur = document.getElementById('upcoming-currency').value || 'USD';
+        try {
+          const r = await fetch(`${BASE}/v1/news/upcoming?currency=${cur}`, {
+            headers: { 'X-API-Key': KEY },
+          });
+          showResult('upcoming', r.ok, await r.json());
+        } catch (e) {
+          showResult('upcoming', false, { error: e.message });
+        }
+      }
+      async function tryBlackout() {
+        const cur =
+          document.getElementById('blackout-currency').value || 'GBPUSD';
+        try {
+          const r = await fetch(
+            `${BASE}/v1/news/blackout-zones?currency=${cur}`,
+            { headers: { 'X-API-Key': KEY } },
+          );
+          showResult('blackout', r.ok, await r.json());
+        } catch (e) {
+          showResult('blackout', false, { error: e.message });
+        }
+      }
+      async function tryRefresh() {
+        try {
+          const r = await fetch(`${BASE}/admin/refresh-cache`, {
+            method: 'POST',
+            headers: { 'X-API-Key': KEY },
+          });
+          showResult('refresh', r.ok, await r.json());
+        } catch (e) {
+          showResult('refresh', false, { error: e.message });
+        }
+      }
+      function copyCode(btn) {
+        const pre = btn.closest('.code-wrap').querySelector('pre');
+        navigator.clipboard.writeText(pre.innerText);
+        btn.textContent = 'COPIED';
+        setTimeout(() => (btn.textContent = 'COPY'), 1500);
+      }
+    </script>
+  </body>
+</html>

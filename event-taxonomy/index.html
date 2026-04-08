@@ -1,0 +1,954 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FNEWSTEER — Event Taxonomy</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../shared.css" />
+    <style>
+      .page-desc {
+        font-size: 12px;
+        color: var(--dim);
+        line-height: 1.8;
+        max-width: 560px;
+        margin-bottom: 32px;
+        border-left: 2px solid var(--accent);
+        padding-left: 16px;
+      }
+
+      /* ── Impact colours ── */
+      .impact-red {
+        color: var(--urgent) !important;
+        font-weight: 700;
+      }
+      .impact-high {
+        color: var(--danger) !important;
+        font-weight: 600;
+      }
+      .impact-medium {
+        color: var(--dim) !important;
+      }
+      .impact-black {
+        color: var(--purple) !important;
+        font-weight: 700;
+      }
+      .ccy {
+        color: var(--blue) !important;
+        font-size: 9px;
+      }
+
+      /* ── Section hero strips ── */
+      h2 .category-icon {
+        font-size: 14px;
+        margin-right: 8px;
+        vertical-align: middle;
+      }
+
+      /* ── Search bar ── */
+      .search-wrap {
+        position: relative;
+        margin-bottom: 32px;
+        max-width: 400px;
+      }
+      .search-input {
+        width: 100%;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        color: var(--text);
+        font-family: var(--font-mono);
+        font-size: 11px;
+        padding: 10px 14px 10px 36px;
+        outline: none;
+        transition: border-color 0.15s;
+        letter-spacing: 0.04em;
+      }
+      .search-input:focus {
+        border-color: rgba(251, 191, 36, 0.4);
+      }
+      .search-input::placeholder {
+        color: var(--faint);
+      }
+      .search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--dim);
+        font-size: 12px;
+        pointer-events: none;
+      }
+      .search-count {
+        font-size: 9px;
+        color: var(--dim);
+        margin-top: 6px;
+        letter-spacing: 0.08em;
+      }
+
+      /* hidden rows */
+      tr.hidden {
+        display: none;
+      }
+      h2.section-hidden,
+      .section-hidden {
+        display: none !important;
+      }
+
+      /* ── Taxonomy table specifics ── */
+      .taxonomy-table td:nth-child(1) {
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .taxonomy-table td:nth-child(3) {
+        font-size: 9px;
+      }
+
+      /* ── Wildcards callout ── */
+      .wildcards-callout {
+        background: rgba(239, 68, 68, 0.05);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        border-radius: var(--radius);
+        padding: 12px 16px;
+        margin-bottom: 12px;
+        font-size: 10px;
+        color: rgba(239, 68, 68, 0.8);
+        line-height: 1.7;
+      }
+
+      /* ── Summary chips ── */
+      .summary-row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 32px;
+      }
+      .summary-chip {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 3px;
+        padding: 6px 12px;
+        font-size: 9px;
+        letter-spacing: 0.1em;
+        color: var(--dim);
+      }
+      .summary-chip strong {
+        color: var(--text);
+        font-size: 13px;
+        margin-right: 2px;
+      }
+
+      /* ── Page footer ── */
+      .page-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding-top: 24px;
+        border-top: 1px solid var(--border);
+        margin-top: 16px;
+      }
+      .page-footer-copy {
+        font-size: 9px;
+        color: var(--faint);
+        letter-spacing: 0.08em;
+      }
+      .page-footer-links {
+        display: flex;
+        gap: 16px;
+      }
+      .page-footer-links a {
+        font-size: 9px;
+        letter-spacing: 0.1em;
+        color: var(--dim);
+        text-decoration: none;
+      }
+      .page-footer-links a:hover {
+        color: var(--accent);
+        opacity: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Top Nav -->
+    <nav class="top-nav">
+      <a href="/" class="nav-logo">
+        <span class="nav-logo-icon">◎</span>
+        <span class="nav-logo-name">FN<em>EWS</em>TEER</span>
+      </a>
+      <div class="nav-links">
+        <a href="/">HOME</a>
+        <a href="../apiv1/">API DOCS</a>
+        <a href="../mcp/">MCP</a>
+        <a href="." class="active">TAXONOMY</a>
+        <a href="https://github.com/tushcmd/fnewsteer" target="_blank"
+          >GITHUB</a
+        >
+      </div>
+      <a
+        href="https://chromewebstore.google.com/detail/nfdcdhkgoiohipbhoalpnenhincbpnlc"
+        target="_blank"
+        class="nav-cta"
+        >ADD TO CHROME</a
+      >
+    </nav>
+
+    <!-- Layout -->
+    <div class="page-layout">
+      <!-- Sidebar -->
+      <nav class="sidebar">
+        <div class="sidebar-brand">
+          <div class="sidebar-brand-name">FN<em>EWS</em>TEER</div>
+          <div class="sidebar-brand-sub">EVENT TAXONOMY</div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Categories</div>
+          <a class="sidebar-link active" onclick="goTo('inflation')"
+            >① Inflation & Prices</a
+          >
+          <a class="sidebar-link" onclick="goTo('central-bank')"
+            >② Central Bank</a
+          >
+          <a class="sidebar-link" onclick="goTo('labor')">③ Labor Market</a>
+          <a class="sidebar-link" onclick="goTo('gdp')">④ GDP & Growth</a>
+          <a class="sidebar-link" onclick="goTo('consumer')"
+            >⑤ Consumer & Retail</a
+          >
+          <a class="sidebar-link" onclick="goTo('business')"
+            >⑥ Business & Industry</a
+          >
+          <a class="sidebar-link" onclick="goTo('housing')">⑦ Housing</a>
+          <a class="sidebar-link" onclick="goTo('trade')">⑧ Trade Flows</a>
+          <a class="sidebar-link" onclick="goTo('wildcards')">⑨ Wildcards</a>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Impact Legend</div>
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              gap: 5px;
+              padding: 4px 0;
+            "
+          >
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 9px;
+                color: var(--urgent);
+              "
+            >
+              <span
+                style="
+                  width: 8px;
+                  height: 8px;
+                  border-radius: 50%;
+                  background: var(--urgent);
+                  flex-shrink: 0;
+                "
+              ></span
+              >RED / HIGH
+            </div>
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 9px;
+                color: var(--danger);
+              "
+            >
+              <span
+                style="
+                  width: 8px;
+                  height: 8px;
+                  border-radius: 50%;
+                  background: var(--danger);
+                  flex-shrink: 0;
+                "
+              ></span
+              >HIGH
+            </div>
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 9px;
+                color: var(--dim);
+              "
+            >
+              <span
+                style="
+                  width: 8px;
+                  height: 8px;
+                  border-radius: 50%;
+                  background: var(--muted);
+                  flex-shrink: 0;
+                "
+              ></span
+              >MEDIUM
+            </div>
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 9px;
+                color: var(--purple);
+              "
+            >
+              <span
+                style="
+                  width: 8px;
+                  height: 8px;
+                  border-radius: 50%;
+                  background: var(--purple);
+                  flex-shrink: 0;
+                "
+              ></span
+              >BLACK SWAN
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">More</div>
+          <a class="sidebar-link" href="../apiv1/">API Reference ↗</a>
+          <a class="sidebar-link" href="../mcp/">MCP Guide ↗</a>
+          <a
+            class="sidebar-link"
+            href="https://github.com/tushcmd/fnewsteer"
+            target="_blank"
+            >GitHub ↗</a
+          >
+        </div>
+      </nav>
+
+      <!-- Main -->
+      <main class="page-main">
+        <h1>EVENT <em>TAXONOMY</em></h1>
+        <p class="page-desc">
+          Complete hierarchy of economic events that move currency markets —
+          organised by theme, not alphabetically. FNEWSTEER uses this
+          classification to compute blackout windows and block trades.
+        </p>
+
+        <!-- Summary chips -->
+        <div class="summary-row">
+          <div class="summary-chip"><strong>42</strong>TRACKED EVENTS</div>
+          <div class="summary-chip"><strong>9</strong>CATEGORIES</div>
+          <div
+            class="summary-chip"
+            style="
+              border-color: rgba(239, 68, 68, 0.2);
+              color: rgba(239, 68, 68, 0.7);
+            "
+          >
+            <strong style="color: var(--urgent)">±60m</strong>RED / HIGH WINDOW
+          </div>
+          <div
+            class="summary-chip"
+            style="
+              border-color: rgba(245, 158, 11, 0.2);
+              color: rgba(245, 158, 11, 0.7);
+            "
+          >
+            <strong style="color: var(--danger)">±30m</strong>HIGH WINDOW
+          </div>
+        </div>
+
+        <!-- Search -->
+        <div class="search-wrap">
+          <span class="search-icon">⌕</span>
+          <input
+            class="search-input"
+            id="search"
+            type="text"
+            placeholder="SEARCH EVENTS, CURRENCIES..."
+            oninput="filterTable()"
+            autocomplete="off"
+          />
+          <div class="search-count" id="search-count"></div>
+        </div>
+
+        <!-- ① Inflation -->
+        <span class="anchor" id="inflation"></span>
+        <h2 id="h-inflation">
+          <span class="category-icon">📈</span
+          ><span class="num">①</span>INFLATION & PRICES
+          <span
+            style="
+              color: var(--urgent);
+              font-size: 9px;
+              font-weight: 500;
+              margin-left: 8px;
+            "
+            >THE #1 MARKET MOVER</span
+          >
+        </h2>
+        <table class="taxonomy-table" id="t-inflation">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Full Name</th>
+              <th>Currency</th>
+              <th>Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>CPI</td>
+              <td>Consumer Price Index (Headline & Core)</td>
+              <td class="ccy">All Majors</td>
+              <td class="impact-red">RED / HIGH</td>
+            </tr>
+            <tr>
+              <td>PPI</td>
+              <td>Producer Price Index</td>
+              <td class="ccy">USD, EUR, GBP</td>
+              <td class="impact-high">HIGH</td>
+            </tr>
+            <tr>
+              <td>PCE</td>
+              <td>Personal Consumption Expenditures</td>
+              <td class="ccy">USD</td>
+              <td class="impact-red">RED / HIGH · Fed preferred</td>
+            </tr>
+            <tr>
+              <td>HICP</td>
+              <td>Harmonized Index of Consumer Prices</td>
+              <td class="ccy">EUR</td>
+              <td class="impact-high">HIGH</td>
+            </tr>
+            <tr>
+              <td>RPI</td>
+              <td>Retail Price Index</td>
+              <td class="ccy">GBP</td>
+              <td class="impact-high">HIGH</td>
+            </tr>
+            <tr>
+              <td>CPI Flash</td>
+              <td>Preliminary CPI Estimate</td>
+              <td class="ccy">EUR, DEM</td>
+              <td class="impact-high">HIGH</td>
+            </tr>
+            <tr>
+              <td>Import/Export Prices</td>
+              <td>Trade Inflation Metrics</td>
+              <td class="ccy">USD, JPY</td>
+              <td class="impact-medium">MEDIUM</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- ② Central Bank -->
+        <span class="anchor" id="central-bank"></span>
+        <h2 id="h-central-bank">
+          <span class="category-icon">🏦</span><span class="num">②</span>CENTRAL
+          BANK & MONETARY POLICY
+        </h2>
+        <table class="taxonomy-table" id="t-central-bank">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Full Name</th>
+              <th>Currency</th>
+              <th>Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>FOMC</td>
+              <td>Federal Open Market Committee Meeting</td>
+              <td class="ccy">USD</td>
+              <td class="impact-red">RED / HIGH</td>
+            </tr>
+            <tr>
+              <td>Interest Rate Decision</td>
+              <td>Central Bank Rate Announcement</td>
+              <td class="ccy">ALL</td>
+              <td class="impact-red">RED / HIGH</td>
+            </tr>
+            <tr>
+              <td>Monetary Policy Statement</td>
+              <td>Policy Language Release</td>
+              <td class="ccy">ALL</td>
+              <td class="impact-high">HIGH</td>
+            </tr>
+            <tr>
+              <td>Meeting Minutes</td>
+              <td>Detailed Record of Previous Meeting</td>
+              <td class="ccy">USD, EUR, GBP, AUD, NZD, CAD</td>
+              <td class="impact-high">MEDIUM–HIGH</td>
+            </tr>
+            <tr>
+              <td>Press Conference</td>
+              <td>Governor / Chair Speeches</td>
+              <td class="ccy">ALL</td>
+              <td class="impact-red">RED / HIGH</td>
+            </tr>
+            <tr>
+              <td>Monetary Policy Report</td>
+              <td>Quarterly Inflation/Outlook Report</td>
+              <td class="ccy">GBP, CAD, NOK</td>
+              <td class="impact-high">HIGH</td>
+            </tr>
+            <tr>
+              <td>Financial Stability Report</td>
+              <td>Systemic Risk Assessment</td>
+              <td class="ccy">ALL</td>
+              <td class="impact-medium">MEDIUM</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- ③ Labor -->
+        <span class="anchor" id="labor"></span>
+        <h2 id="h-labor">
+          <span class="category-icon">👷</span><span class="num">③</span>LABOR
+          MARKET & EMPLOYMENT
+        </h2>
+        <table class="taxonomy-table" id="t-labor">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Full Name</th>
+              <th>Currency</th>
+              <th>Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>NFP</td>
+              <td>Non-Farm Payrolls</td>
+              <td class="ccy">USD</td>
+              <td class="impact-red">RED / HIGH</td>
+            </tr>
+            <tr>
+              <td>Unemployment Rate</td>
+              <td>Jobless Rate</td>
+              <td class="ccy">ALL</td>
+              <td class="impact-high">HIGH</td>
+            </tr>
+            <tr>
+              <td>Average Earnings</td>
+              <td>Wage Growth</td>
+              <td class="ccy">GBP, USD</td>
+              <td class="impact-high">HIGH</td>
+            </tr>
+            <tr>
+              <td>JOLTS</td>
+              <td>Job Openings and Labor Turnover Survey</td>
+              <td class="ccy">USD</td>
+              <td class="impact-high">HIGH</td>
+            </tr>
+            <tr>
+              <td>ADP</td>
+              <td>ADP Employment Change</td>
+              <td class="ccy">USD, CAD</td>
+              <td class="impact-high">MEDIUM–HIGH</td>
+            </tr>
+            <tr>
+              <td>Employment Change</td>
+              <td>Net Job Creation</td>
+              <td class="ccy">CAD, AUD, NZD</td>
+              <td class="impact-high">HIGH</td>
+            </tr>
+            <tr>
+              <td>Initial Claims</td>
+              <td>Weekly Unemployment Insurance</td>
+              <td class="ccy">USD</td>
+              <td class="impact-medium">MEDIUM</td>
+            </tr>
+            <tr>
+              <td>Continuing Claims</td>
+              <td>Ongoing Unemployment Beneficiaries</td>
+              <td class="ccy">USD</td>
+              <td class="impact-medium">MEDIUM</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- ④ GDP -->
+        <span class="anchor" id="gdp"></span>
+        <h2 id="h-gdp">
+          <span class="category-icon">📊</span><span class="num">④</span>GDP &
+          GROWTH
+        </h2>
+        <table class="taxonomy-table" id="t-gdp">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Full Name</th>
+              <th>Currency</th>
+              <th>Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>GDP</td>
+              <td>Gross Domestic Product (Q/Q, Y/Y)</td>
+              <td class="ccy">ALL</td>
+              <td class="impact-red">RED / HIGH</td>
+            </tr>
+            <tr>
+              <td>GDP Flash</td>
+              <td>Advance / Preliminary Estimate</td>
+              <td class="ccy">EUR, GBP</td>
+              <td class="impact-high">HIGH</td>
+            </tr>
+            <tr>
+              <td>GDP Revision</td>
+              <td>Final / Fully Detailed Release</td>
+              <td class="ccy">ALL</td>
+              <td class="impact-medium">MEDIUM</td>
+            </tr>
+            <tr>
+              <td>GDI</td>
+              <td>Gross Domestic Income</td>
+              <td class="ccy">USD</td>
+              <td class="impact-medium">MEDIUM</td>
+            </tr>
+            <tr>
+              <td>Leading Index</td>
+              <td>Composite Forward Indicator</td>
+              <td class="ccy">JPY, USD</td>
+              <td class="impact-medium">MEDIUM</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- ⑤ Consumer -->
+        <span class="anchor" id="consumer"></span>
+        <h2 id="h-consumer">
+          <span class="category-icon">🛒</span
+          ><span class="num">⑤</span>CONSUMER & RETAIL
+        </h2>
+        <table class="taxonomy-table" id="t-consumer">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Full Name</th>
+              <th>Currency</th>
+              <th>Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Retail Sales</td>
+              <td>Consumer Spending</td>
+              <td class="ccy">ALL</td>
+              <td class="impact-red">RED / HIGH</td>
+            </tr>
+            <tr>
+              <td>Retail Sales ex Auto</td>
+              <td>Core Consumer Spending</td>
+              <td class="ccy">USD</td>
+              <td class="impact-high">HIGH</td>
+            </tr>
+            <tr>
+              <td>Consumer Confidence</td>
+              <td>Conference Board, Michigan Sentiment</td>
+              <td class="ccy">USD, EUR</td>
+              <td class="impact-high">MEDIUM–HIGH</td>
+            </tr>
+            <tr>
+              <td>GfK</td>
+              <td>German Consumer Climate</td>
+              <td class="ccy">EUR</td>
+              <td class="impact-medium">MEDIUM</td>
+            </tr>
+            <tr>
+              <td>Household Spending</td>
+              <td>Family Expenditure</td>
+              <td class="ccy">JPY</td>
+              <td class="impact-medium">MEDIUM</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- ⑥ Business -->
+        <span class="anchor" id="business"></span>
+        <h2 id="h-business">
+          <span class="category-icon">🏭</span
+          ><span class="num">⑥</span>BUSINESS & INDUSTRY
+        </h2>
+        <table class="taxonomy-table" id="t-business">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Full Name</th>
+              <th>Currency</th>
+              <th>Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>PMI</td>
+              <td>Purchasing Managers' Index (Mfg/Services)</td>
+              <td class="ccy">ALL</td>
+              <td class="impact-high">HIGH</td>
+            </tr>
+            <tr>
+              <td>ISM</td>
+              <td>Institute for Supply Management</td>
+              <td class="ccy">USD</td>
+              <td class="impact-high">HIGH</td>
+            </tr>
+            <tr>
+              <td>Industrial Production</td>
+              <td>Factory Output</td>
+              <td class="ccy">ALL</td>
+              <td class="impact-high">MEDIUM–HIGH</td>
+            </tr>
+            <tr>
+              <td>Durable Goods Orders</td>
+              <td>Long-Lasting Manufactured Goods</td>
+              <td class="ccy">USD</td>
+              <td class="impact-high">MEDIUM–HIGH</td>
+            </tr>
+            <tr>
+              <td>Business Confidence</td>
+              <td>IFO, ZEW, NAB Corporate Sentiment</td>
+              <td class="ccy">EUR, AUD</td>
+              <td class="impact-high">MEDIUM–HIGH</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- ⑦ Housing -->
+        <span class="anchor" id="housing"></span>
+        <h2 id="h-housing">
+          <span class="category-icon">🏠</span><span class="num">⑦</span>HOUSING
+          & CONSTRUCTION
+        </h2>
+        <table class="taxonomy-table" id="t-housing">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Full Name</th>
+              <th>Currency</th>
+              <th>Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Building Permits</td>
+              <td>Future Construction Authorizations</td>
+              <td class="ccy">USD, CAD</td>
+              <td class="impact-medium">MEDIUM</td>
+            </tr>
+            <tr>
+              <td>Housing Starts</td>
+              <td>New Residential Construction</td>
+              <td class="ccy">USD, CAD</td>
+              <td class="impact-medium">MEDIUM</td>
+            </tr>
+            <tr>
+              <td>Existing Home Sales</td>
+              <td>Resale Market Activity</td>
+              <td class="ccy">USD</td>
+              <td class="impact-medium">MEDIUM</td>
+            </tr>
+            <tr>
+              <td>HPI</td>
+              <td>House Price Index</td>
+              <td class="ccy">USD, GBP, CAD</td>
+              <td class="impact-medium">MEDIUM</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- ⑧ Trade -->
+        <span class="anchor" id="trade"></span>
+        <h2 id="h-trade">
+          <span class="category-icon">🌐</span><span class="num">⑧</span>TRADE &
+          CROSS-BORDER FLOWS
+        </h2>
+        <table class="taxonomy-table" id="t-trade">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Full Name</th>
+              <th>Currency</th>
+              <th>Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Trade Balance</td>
+              <td>Exports minus Imports</td>
+              <td class="ccy">ALL</td>
+              <td class="impact-medium">MEDIUM</td>
+            </tr>
+            <tr>
+              <td>Current Account</td>
+              <td>Broader Trade + Income Transfers</td>
+              <td class="ccy">ALL</td>
+              <td class="impact-medium">MEDIUM</td>
+            </tr>
+            <tr>
+              <td>Terms of Trade</td>
+              <td>Export/Import Price Ratio</td>
+              <td class="ccy">AUD, NZD, CAD</td>
+              <td class="impact-medium">MEDIUM</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- ⑨ Wildcards -->
+        <span class="anchor" id="wildcards"></span>
+        <h2 id="h-wildcards">
+          <span class="category-icon">🚨</span
+          ><span class="num">⑨</span>WILDCARDS
+          <span
+            style="
+              color: var(--urgent);
+              font-size: 9px;
+              font-weight: 500;
+              margin-left: 8px;
+            "
+            >SPECIAL CATEGORIES</span
+          >
+        </h2>
+        <div class="wildcards-callout">
+          <strong>🚨 Red Folder Events</strong> — Multiple prop firms explicitly
+          state: traders are not permitted to trade any pair during Red Folder
+          events. FNEWSTEER flags these separately from standard high-impact
+          events.
+        </div>
+        <table class="taxonomy-table" id="t-wildcards">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Description</th>
+              <th>Currency</th>
+              <th>Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Red Folder Events</td>
+              <td>Unscheduled high-impact announcements</td>
+              <td class="ccy">ALL</td>
+              <td class="impact-red">RED / HIGH</td>
+            </tr>
+            <tr>
+              <td>Speeches (Red Label)</td>
+              <td>Central Bank / Government officials</td>
+              <td class="ccy">ALL</td>
+              <td class="impact-red">RED / HIGH</td>
+            </tr>
+            <tr>
+              <td>Elections</td>
+              <td>National / Referendum votes</td>
+              <td class="ccy">ALL</td>
+              <td class="impact-black">EXTREME</td>
+            </tr>
+            <tr>
+              <td>Geopolitical Conflict</td>
+              <td>War, sanctions, trade disputes</td>
+              <td class="ccy">ALL</td>
+              <td class="impact-black">BLACK SWAN</td>
+            </tr>
+            <tr>
+              <td>All-Day Red Events</td>
+              <td>Full trading day restriction</td>
+              <td class="ccy">ALL</td>
+              <td class="impact-red">TOTAL AVOIDANCE</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="page-footer">
+          <div class="page-footer-copy">
+            FNEWSTEER v1.0.0 · Data: ForexFactory · © 2026 FNS
+          </div>
+          <div class="page-footer-links">
+            <a href="../mcp/">MCP GUIDE ↗</a>
+            <a href="../apiv1/">API DOCS ↗</a>
+            <a href="https://x.com/0xtush" target="_blank">𝕏 @0xtush ↗</a>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      function goTo(id) {
+        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+        document
+          .querySelectorAll('.sidebar-link')
+          .forEach((l) => l.classList.remove('active'));
+        event.target.classList.add('active');
+      }
+
+      function filterTable() {
+        const q = document.getElementById('search').value.toLowerCase().trim();
+        let total = 0,
+          visible = 0;
+
+        const sections = [
+          'inflation',
+          'central-bank',
+          'labor',
+          'gdp',
+          'consumer',
+          'business',
+          'housing',
+          'trade',
+          'wildcards',
+        ];
+
+        sections.forEach((id) => {
+          const table = document.getElementById('t-' + id);
+          const heading = document.getElementById('h-' + id);
+          if (!table) return;
+
+          const rows = table.querySelectorAll('tbody tr');
+          let sectionVisible = 0;
+
+          rows.forEach((row) => {
+            total++;
+            const text = row.textContent.toLowerCase();
+            if (!q || text.includes(q)) {
+              row.classList.remove('hidden');
+              sectionVisible++;
+              visible++;
+            } else {
+              row.classList.add('hidden');
+            }
+          });
+
+          // Hide entire section (h2 + table) if nothing matches
+          if (q && sectionVisible === 0) {
+            heading?.classList.add('section-hidden');
+            table.classList.add('section-hidden');
+            // also hide adjacent anchor — not critical
+          } else {
+            heading?.classList.remove('section-hidden');
+            table.classList.remove('section-hidden');
+          }
+        });
+
+        const countEl = document.getElementById('search-count');
+        if (q) {
+          countEl.textContent = `${visible} of ${total} events match`;
+        } else {
+          countEl.textContent = '';
+        }
+      }
+    </script>
+  </body>
+</html>
